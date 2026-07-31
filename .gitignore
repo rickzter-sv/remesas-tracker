@@ -1,0 +1,40 @@
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Bases de datos locales de prueba
+*.db
+*.sqlite
+*.sqlite3
+
+# Evidencia y exportaciones: datos generados por los colectores, no codigo.
+# Se versiona la carpeta (via .gitkeep) pero no su contenido.
+evidence/*
+!evidence/.gitkeep
+exports/*
+!exports/.gitkeep
+
+# Editor / SO
+.vscode/
+.idea/
+.DS_Store
