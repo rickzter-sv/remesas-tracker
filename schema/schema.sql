@@ -14,13 +14,20 @@
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS operators (
-    operator_id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    name                TEXT NOT NULL,
-    type                TEXT NOT NULL,          -- ej. 'bank', 'mto' (money transfer operator), 'fintech'
-    registered_country  TEXT NOT NULL,
-    corridors_served     TEXT,                   -- lista separada por comas, ej. 'US-SV,CA-SV'
-    website             TEXT,
-    notes               TEXT
+    operator_id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    name                    TEXT NOT NULL,
+    type                    TEXT NOT NULL,          -- ej. 'bank', 'mto' (money transfer operator), 'fintech'
+    registered_country      TEXT NOT NULL,
+    corridors_served        TEXT,                   -- lista separada por comas, ej. 'US-SV,CA-SV'
+    website                 TEXT,
+    -- 1 si el sitio del operador bloquea automatizacion de forma explicita
+    -- (mensaje de deteccion de bots tipo DataDome, no un CAPTCHA resoluble):
+    -- en ese caso NO se debe intentar evadir el bloqueo bajo ninguna
+    -- circunstancia (nada de browsers "stealth", rotacion de user-agent/IP,
+    -- ni similares); la recoleccion para ese operador debe ser manual
+    -- (collection_method = 'manual') hasta nuevo aviso.
+    requires_manual_sampling INTEGER NOT NULL DEFAULT 0,
+    notes                   TEXT
 );
 
 CREATE TABLE IF NOT EXISTS corridors (
@@ -84,7 +91,10 @@ VALUES
 
     ('MoneyGram', 'mto', 'US', 'US-SV,CA-SV',
      'https://www.moneygram.com/mgo/us/en/',
-     'Cotizador verificado 2026-07-31 (HTTP 200). Requiere Playwright (contenido dinamico via JS).'),
+     'Cotizador verificado 2026-07-31 (HTTP 200). Bloqueo anti-bot confirmado 2026-08-01 via Playwright -- '
+     'mensaje explicito de deteccion de automatizacion ("Access is temporarily restricted... '
+     'Automated (bot) activity on your network"), no un CAPTCHA resoluble. No intentar evadirlo. '
+     'Requiere muestreo manual (collection_method = ''manual'').'),
 
     ('Ria Money Transfer', 'mto', 'US', 'US-SV,CA-SV',
      'https://www.riamoneytransfer.com/en-us',
@@ -101,3 +111,5 @@ VALUES
     ('RemitBee', 'fintech', 'CA', 'CA-SV',
      'https://www.remitbee.com/send-money/el-salvador',
      'Cotizador verificado 2026-07-31 via navegador (curl da 403 por proteccion anti-bot; requiere navegador real). Solo corredor CA->SV. Requiere Playwright. ADVERTENCIA: la pagina anuncia el primer envio gratis ("Your very first transfer is completely free") -- NO capturar ese precio como tarifa real, siempre registrar la tarifa de lista para envios subsecuentes.');
+
+UPDATE operators SET requires_manual_sampling = 1 WHERE name = 'MoneyGram';

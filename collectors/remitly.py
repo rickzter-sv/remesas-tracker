@@ -34,9 +34,14 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-REPO_ROOT = Path(__file__).parent.parent
-EVIDENCE_DIR = REPO_ROOT / "evidence"
-DEFAULT_DB_PATH = REPO_ROOT / "remesas.db"
+from utils import (
+    DEFAULT_DB_PATH,
+    EVIDENCE_DIR,
+    get_corridor_id,
+    get_operator_id,
+    insert_evidence,
+    insert_observation_if_new,
+)
 
 OPERATOR_NAME = "Remitly"
 AMOUNTS = (100, 200, 500)
@@ -236,42 +241,6 @@ def get_ca_everyday_rate(hydration_context: dict, amount: float) -> tuple[float,
     return float(facts[key]), key
 
 
-def get_corridor_id(conn: sqlite3.Connection, origin: str, destination: str) -> int:
-    row = conn.execute(
-        "SELECT corridor_id FROM corridors WHERE origin_country = ? AND destination_country = ?",
-        (origin, destination),
-    ).fetchone()
-    if row is None:
-        raise LookupError(f"Corredor {origin}->{destination} no existe en la tabla corridors")
-    return row[0]
-
-
-def get_operator_id(conn: sqlite3.Connection, name: str) -> int:
-    row = conn.execute("SELECT operator_id FROM operators WHERE name = ?", (name,)).fetchone()
-    if row is None:
-        raise LookupError(f"Operador {name!r} no existe en la tabla operators")
-    return row[0]
-
-
-def insert_observation(conn: sqlite3.Connection, observation: dict) -> int:
-    columns = ", ".join(observation.keys())
-    placeholders = ", ".join("?" for _ in observation)
-    cursor = conn.execute(
-        f"INSERT INTO observations ({columns}) VALUES ({placeholders})",
-        tuple(observation.values()),
-    )
-    return cursor.lastrowid
-
-
-def insert_evidence(
-    conn: sqlite3.Connection, observation_id: int, file_path: str, sha256_hash: str, captured_at: str
-) -> None:
-    conn.execute(
-        "INSERT INTO evidence (observation_id, file_path, sha256_hash, captured_at) VALUES (?, ?, ?, ?)",
-        (observation_id, file_path, sha256_hash, captured_at),
-    )
-
-
 def collect_corridor(conn: sqlite3.Connection, corridor: dict) -> list[int]:
     html_bytes = fetch_html(corridor["pricing_url"])
     timestamp = datetime.now(timezone.utc)
@@ -352,7 +321,9 @@ def collect_corridor(conn: sqlite3.Connection, corridor: dict) -> list[int]:
                 "collector_notes": notes,
             }
 
-            observation_id = insert_observation(conn, observation)
+            observation_id = insert_observation_if_new(conn, observation)
+            if observation_id is None:
+                continue
             insert_evidence(conn, observation_id, evidence_path, sha256_hash, timestamp.isoformat())
             inserted_ids.append(observation_id)
 

@@ -22,17 +22,27 @@ dist/
 .env.*
 !.env.example
 
-# Bases de datos locales de prueba
+# Bases de datos locales de prueba (remesas.db es la excepcion: es la base
+# real del proyecto, y la corrida diaria de GitHub Actions depende de que
+# este versionada -- si no, cada corrida partiria de una base vacia y nunca
+# se acumularia historia entre dias. Ver .github/workflows/daily-collect.yml).
 *.db
 *.sqlite
 *.sqlite3
+!remesas.db
 
-# Evidencia y exportaciones: datos generados por los colectores, no codigo.
-# Se versiona la carpeta (via .gitkeep) pero no su contenido.
-evidence/*
-!evidence/.gitkeep
-exports/*
-!exports/.gitkeep
+# Evidencia y exportaciones SI se versionan (a proposito): son el respaldo
+# verificable de cada observacion (screenshots/HTML con hash SHA-256) y el
+# workflow de GitHub Actions depende de poder comitearlas de vuelta al repo
+# cada dia (ver .github/workflows/daily-collect.yml). Antes esta carpeta
+# excluia su contenido via "evidence/*" -- eso hacia que el "git add" del
+# workflow no subiera nada real. Mismo caso para exports/.
+
+# Los logs de corridas locales/manuales NO se versionan por defecto (son
+# ruido de desarrollo); el workflow fuerza el add solo del log de SU propia
+# corrida con `git add -f`, sin necesidad de tocar esta regla.
+logs/*
+!logs/.gitkeep
 
 # Editor / SO
 .vscode/

@@ -24,20 +24,32 @@ Uso:
 """
 
 import argparse
-import hashlib
 import re
 import sqlite3
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from playwright.sync_api import Page, TimeoutError as PlaywrightTimeoutError, sync_playwright
+from playwright.sync_api import Page, sync_playwright
 
-REPO_ROOT = Path(__file__).parent.parent
-EVIDENCE_DIR = REPO_ROOT / "evidence"
-DEFAULT_DB_PATH = REPO_ROOT / "remesas.db"
+from utils import (
+    DEFAULT_DB_PATH,
+    EVIDENCE_DIR,
+    REQUEST_USER_AGENT,
+    click_with_modal_retry,
+    dismiss_any_blocking_modal,
+    dismiss_cookie_banner,
+    get_corridor_id,
+    get_operator_id,
+    insert_evidence,
+    insert_observation_if_new,
+    is_promotional,
+    parse_off_badge,
+    save_screenshot_evidence,
+)
 
 OPERATOR_NAME = "Western Union"
+OPERATOR_SLUG = "western_union"
 AMOUNTS = (100, 200, 500)
 
 US_URL = "https://www.westernunion.com/us/en/web/send-money/start?ReceiveCountry=SV"
@@ -66,66 +78,6 @@ CA_PAYMENT_METHOD_LABELS = [
 ]
 CA_DELIVERY_METHOD_LABEL = "Bank account"  # delivery method fijo para esta corrida
 
-REQUEST_USER_AGENT = (
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
-)
-
-
-def get_corridor_id(conn: sqlite3.Connection, origin: str, destination: str) -> int:
-    row = conn.execute(
-        "SELECT corridor_id FROM corridors WHERE origin_country = ? AND destination_country = ?",
-        (origin, destination),
-    ).fetchone()
-    if row is None:
-        raise LookupError(f"Corredor {origin}->{destination} no existe en la tabla corridors")
-    return row[0]
-
-
-def get_operator_id(conn: sqlite3.Connection, name: str) -> int:
-    row = conn.execute("SELECT operator_id FROM operators WHERE name = ?", (name,)).fetchone()
-    if row is None:
-        raise LookupError(f"Operador {name!r} no existe en la tabla operators")
-    return row[0]
-
-
-def insert_observation(conn: sqlite3.Connection, observation: dict) -> int:
-    columns = ", ".join(observation.keys())
-    placeholders = ", ".join("?" for _ in observation)
-    cursor = conn.execute(
-        f"INSERT INTO observations ({columns}) VALUES ({placeholders})",
-        tuple(observation.values()),
-    )
-    return cursor.lastrowid
-
-
-def insert_evidence(
-    conn: sqlite3.Connection, observation_id: int, file_path: str, sha256_hash: str, captured_at: str
-) -> None:
-    conn.execute(
-        "INSERT INTO evidence (observation_id, file_path, sha256_hash, captured_at) VALUES (?, ?, ?, ?)",
-        (observation_id, file_path, sha256_hash, captured_at),
-    )
-
-
-def save_screenshot_evidence(corridor_code: str, amount: int, png_bytes: bytes, timestamp: datetime) -> tuple[str, str]:
-    filename = f"western_union_{corridor_code}_{amount}_{timestamp.strftime('%Y%m%dT%H%M%SZ')}.png"
-    path = EVIDENCE_DIR / filename
-    path.write_bytes(png_bytes)
-    sha256_hash = hashlib.sha256(png_bytes).hexdigest()
-    return f"evidence/{filename}", sha256_hash
-
-
-def dismiss_cookie_banner(page: Page) -> None:
-    for text in ("Accept All Cookies", "Accept all", "I Accept", "Accept"):
-        try:
-            btn = page.get_by_role("button", name=text, exact=False)
-            if btn.count() and btn.first.is_visible():
-                btn.first.click(timeout=2000)
-                return
-        except Exception:
-            continue
-
 
 def dismiss_wallet_modal(page: Page) -> None:
     """Google Pay / Apple Pay abren un modal explicando que el metodo debe
@@ -149,48 +101,6 @@ def dismiss_wallet_modal(page: Page) -> None:
                 pass
 
 
-def dismiss_any_blocking_modal(page: Page) -> None:
-    """El sitio US muestra varios modales "educativos" ad-hoc (ademas del de
-    Google/Apple Pay) que interceptan clics -- por ejemplo #educational-modal
-    la primera vez que se cambia de metodo de fondeo. Todos comparten la
-    clase Bootstrap ".modal.in" cuando estan visibles, asi que se cierran de
-    forma generica en vez de listar cada id posible."""
-    try:
-        modals = page.locator(".modal.in")
-        for i in range(modals.count()):
-            modal = modals.nth(i)
-            if not modal.is_visible():
-                continue
-            closed = False
-            for label in ("OK", "Got it", "Close", "Continue"):
-                btn = modal.get_by_role("button", name=label)
-                if btn.count():
-                    try:
-                        btn.first.click(timeout=2000)
-                        page.wait_for_timeout(300)
-                        closed = True
-                        break
-                    except Exception:
-                        continue
-            if not closed:
-                page.keyboard.press("Escape")
-                page.wait_for_timeout(300)
-    except Exception:
-        pass
-
-
-def click_with_modal_retry(page: Page, locator, attempts: int = 3) -> None:
-    last_error = None
-    for _ in range(attempts):
-        try:
-            locator.click(timeout=10000)
-            return
-        except PlaywrightTimeoutError as exc:
-            last_error = exc
-            dismiss_any_blocking_modal(page)
-    raise last_error
-
-
 def parse_us_summary(raw_text: str) -> tuple[float, float, bool]:
     """Parsea section.trxn-summary. Devuelve (fee_lista, fee_cobrado, is_promo).
 
@@ -201,14 +111,14 @@ def parse_us_summary(raw_text: str) -> tuple[float, float, bool]:
     venga inmediatamente despues del numero.
     """
     text = re.sub(r"\s+", " ", raw_text)
-    off_match = re.search(r"(\d+)%\s*OFF\s*([\d.]+)", text)
+    off_badge = parse_off_badge(text)
     fee_actual_match = re.search(r"Transfer fee.*?\+\s*([\d.]+)\s*USD", text)
     if not fee_actual_match:
         raise ValueError(f"No se pudo leer 'Transfer fee' en el resumen: {text!r}")
     fee_actual = float(fee_actual_match.group(1))
-    if off_match:
-        fee_list = float(off_match.group(2))
-        is_promo = abs(fee_list - fee_actual) > 0.001
+    if off_badge:
+        _, fee_list = off_badge
+        is_promo = is_promotional(fee_list, fee_actual)
     else:
         fee_list = fee_actual
         is_promo = False
@@ -242,8 +152,9 @@ def collect_us(page: Page, conn: sqlite3.Connection, corridor_id: int, operator_
 
         timestamp = datetime.now(timezone.utc)
         screenshot_bytes = page.screenshot(full_page=True)
-        evidence_path, sha256_hash = save_screenshot_evidence("us", amount, screenshot_bytes, timestamp)
+        evidence_path, sha256_hash = save_screenshot_evidence(OPERATOR_SLUG, "us", amount, screenshot_bytes, timestamp)
 
+        inserted_this_amount = 0
         for payment_id, funding_method in US_PAYMENT_METHODS:
             radio = page.locator(f"#{payment_id}")
             radio.wait_for(state="visible", timeout=15000)
@@ -283,12 +194,15 @@ def collect_us(page: Page, conn: sqlite3.Connection, corridor_id: int, operator_
                 "source_url": US_URL,
                 "collector_notes": notes,
             }
-            observation_id = insert_observation(conn, observation)
+            observation_id = insert_observation_if_new(conn, observation)
+            if observation_id is None:
+                continue
             insert_evidence(conn, observation_id, evidence_path, sha256_hash, timestamp.isoformat())
             inserted_ids.append(observation_id)
+            inserted_this_amount += 1
 
         conn.commit()
-        print(f"US->SV ${amount}: 5 observaciones insertadas. Evidencia: {evidence_path} (sha256={sha256_hash})")
+        print(f"US->SV ${amount}: {inserted_this_amount} observaciones insertadas. Evidencia: {evidence_path} (sha256={sha256_hash})")
 
     return inserted_ids
 
@@ -343,7 +257,7 @@ def parse_ca_payment_methods(panel_text: str) -> dict:
             continue
         fee_list = float(match.group(1))
         fee_actual = float(match.group(2))
-        results[key] = (fee_list, fee_actual, abs(fee_list - fee_actual) > 0.001)
+        results[key] = (fee_list, fee_actual, is_promotional(fee_list, fee_actual))
     return results
 
 
@@ -363,12 +277,13 @@ def collect_ca(page: Page, conn: sqlite3.Connection, corridor_id: int, operator_
 
         timestamp = datetime.now(timezone.utc)
         screenshot_bytes = page.screenshot(full_page=True)
-        evidence_path, sha256_hash = save_screenshot_evidence("ca", amount, screenshot_bytes, timestamp)
+        evidence_path, sha256_hash = save_screenshot_evidence(OPERATOR_SLUG, "ca", amount, screenshot_bytes, timestamp)
 
         fees_by_method = parse_ca_payment_methods(payment_panel_text)
         if not fees_by_method:
             raise ValueError(f"No se pudo parsear ningun metodo de pago del panel CA: {payment_panel_text!r}")
 
+        inserted_this_amount = 0
         for label, funding_method in CA_PAYMENT_METHOD_LABELS:
             if funding_method not in fees_by_method:
                 continue
@@ -402,13 +317,16 @@ def collect_ca(page: Page, conn: sqlite3.Connection, corridor_id: int, operator_
                 "source_url": CA_URL,
                 "collector_notes": notes,
             }
-            observation_id = insert_observation(conn, observation)
+            observation_id = insert_observation_if_new(conn, observation)
+            if observation_id is None:
+                continue
             insert_evidence(conn, observation_id, evidence_path, sha256_hash, timestamp.isoformat())
             inserted_ids.append(observation_id)
+            inserted_this_amount += 1
 
         conn.commit()
         print(
-            f"CA->SV ${amount}: {len(fees_by_method)} observaciones insertadas. "
+            f"CA->SV ${amount}: {inserted_this_amount} observaciones insertadas. "
             f"Evidencia: {evidence_path} (sha256={sha256_hash})"
         )
 

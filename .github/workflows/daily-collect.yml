@@ -1,0 +1,88 @@
+name: Recoleccion diaria de tarifas
+
+# Horario: 09:15 UTC, todos los dias.
+#   - Hora: 09:15 UTC son ~05:15 hora del Este de EE.UU. / ~02:15 hora del
+#     Pacifico, es decir temprano en la manana laboral de EE.UU./Canada,
+#     antes de que los sitios roten posibles cambios de precio o promociones
+#     intradia -- se busca una lectura consistente y comparable dia a dia,
+#     no una hora pico donde el precio pueda variar segun trafico/demanda.
+#   - Minuto :15 (no :00 ni :30) a proposito: GitHub documenta que el cron de
+#     Actions sufre congestion en los minutos redondos porque muchisimos
+#     workflows en toda la plataforma se disparan justo ahi; un minuto
+#     "impar" reduce la espera antes de que el job realmente arranque.
+# workflow_dispatch permite dispararlo a mano (para pruebas) sin esperar al cron.
+on:
+  schedule:
+    - cron: "15 9 * * *"
+  workflow_dispatch: {}
+
+# Necesario para que el ultimo paso pueda comitear y pushear remesas.db,
+# evidencia y el log de la corrida de vuelta al repo.
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias de Python
+        run: pip install -r requirements.txt
+
+      - name: Instalar Playwright (Chromium + dependencias del sistema)
+        run: playwright install --with-deps chromium
+
+      - name: Inicializar remesas.db si el repo todavia no tiene una
+        run: |
+          if [ ! -f remesas.db ]; then
+            echo "No existe remesas.db en el checkout -- creando una nueva vacia."
+            python schema/init_db.py
+          fi
+
+      # No se usa "set -e" a proposito: si un colector individual falla,
+      # run_all.py ya lo captura y sigue con el resto (ver collectors/run_all.py).
+      # Este paso nunca debe abortar el job, aunque run_all.py salga con
+      # codigo 1 (que significa "al menos un colector fallo, pero los demas
+      # SI corrieron") -- por eso se guarda el codigo de salida para
+      # revisarlo recien al final, despues de comitear lo que si se recolecto.
+      - name: Correr los colectores automatizados (run_all.py)
+        id: run_all
+        run: |
+          set +e
+          python collectors/run_all.py
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Comitear y pushear remesas.db, evidencia y el log de la corrida
+        run: |
+          git config user.name "remesas-tracker-bot"
+          git config user.email "remesas-tracker-bot@users.noreply.github.com"
+
+          git add remesas.db
+          git add -f evidence/
+          git add -f logs/*.log
+
+          if git diff --cached --quiet; then
+            echo "Nada que comitear (sin observaciones nuevas ni logs nuevos)."
+          else
+            git commit -m "daily collection $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      # Se marca el job como fallido DESPUES de comitear, para que un
+      # colector roto quede visible (notificacion/X roja en Actions) sin
+      # impedir que los datos de los colectores que si funcionaron se
+      # guarden. MoneyGram nunca se corre aqui: su bloqueo anti-bot esta
+      # confirmado y requiere muestreo manual (ver operators.notes).
+      - name: Marcar el job como fallido si algun colector fallo
+        if: steps.run_all.outputs.exit_code != '0'
+        run: |
+          echo "::error::Al menos un colector fallo en esta corrida (detalle en el log ya pusheado, dentro de logs/). MoneyGram sigue pendiente de muestreo manual y nunca se corre desde este workflow."
+          exit 1
