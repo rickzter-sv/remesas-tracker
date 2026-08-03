@@ -60,12 +60,16 @@ jobs:
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Comitear y pushear remesas.db, evidencia y el log de la corrida
+      - name: Exportar datos del dashboard (docs/data.json)
+        run: python export_dashboard_data.py
+
+      - name: Comitear y pushear remesas.db, evidencia, dashboard y el log de la corrida
         run: |
           git config user.name "remesas-tracker-bot"
           git config user.email "remesas-tracker-bot@users.noreply.github.com"
 
           git add remesas.db
+          git add docs/data.json
           git add -f evidence/
           git add -f logs/*.log
 
