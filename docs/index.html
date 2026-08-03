@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Costo Real de las Remesas — El Salvador</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="vendor/chart.umd.min.js"></script>
 <style>
   :root{
     --navy-950:#0A1628;
@@ -240,9 +240,9 @@ function render() {
   document.getElementById('op-count').textContent = dataset.operators.length;
   document.getElementById('obs-count').textContent = obs.length;
 
-  renderKpis(obs);
-  renderChart(obs);
-  renderTable(obs);
+  try { renderKpis(obs); } catch(e) { console.error('renderKpis fallo:', e); }
+  try { renderChart(obs); } catch(e) { console.error('renderChart fallo:', e); }
+  try { renderTable(obs); } catch(e) { console.error('renderTable fallo:', e); }
 }
 
 function corridorFilter(obs) {
@@ -271,6 +271,11 @@ function renderKpis(obs) {
 }
 
 function renderChart(obs) {
+  if (typeof Chart === 'undefined') {
+    document.querySelector('#costChart').closest('.chart-box').innerHTML =
+      '<div class="no-data">No se pudo cargar la librería de gráficos (revisa tu conexión o bloqueador de anuncios).</div>';
+    return;
+  }
   const filtered = corridorFilter(obs);
   const ops = [...new Set(filtered.map(o=>o.operator_name))];
   const dates = [...new Set(filtered.map(o=>o.observed_at.slice(0,10)))].sort();
