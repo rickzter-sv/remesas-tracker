@@ -59,6 +59,7 @@ from utils import (
     DEFAULT_DB_PATH,
     EVIDENCE_DIR,
     REQUEST_USER_AGENT,
+    any_pending_today,
     capture_screenshot_evidence,
     dismiss_cookie_banner,
     get_corridor_id,
@@ -223,6 +224,15 @@ def collect_corridor(
         dialog_html = dialog.inner_html(timeout=10000)
         fee_rows, table_text = parse_fee_matrix(dialog_text)
         check_no_promo_markers(dialog_html, table_text)
+
+        timestamp_probe = datetime.now(timezone.utc).isoformat()
+        candidates = [
+            {"send_amount": amount, "funding_method": fm, "delivery_method": dm}
+            for (dm, fm) in fee_rows
+        ]
+        if not any_pending_today(conn, operator_id, corridor_id, candidates, timestamp_probe):
+            print(f"{corridor_code.upper()}->SV ${amount}: todo ya recolectado hoy, se omite (sin captura nueva de evidencia).")
+            continue
 
         timestamp = datetime.now(timezone.utc)
         evidence_path, sha256_hash = capture_screenshot_evidence(page, OPERATOR_SLUG, corridor_code, amount, timestamp)

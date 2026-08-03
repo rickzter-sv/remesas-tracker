@@ -56,6 +56,7 @@ from utils import (
     DEFAULT_DB_PATH,
     EVIDENCE_DIR,
     REQUEST_USER_AGENT,
+    any_pending_today,
     capture_screenshot_evidence,
     dismiss_cookie_banner,
     get_corridor_id,
@@ -216,6 +217,15 @@ def collect(page: Page, conn: sqlite3.Connection, corridor_id: int, operator_id:
         dropdown_html = dropdown.inner_html(timeout=10000)
         check_no_promo_markers(dropdown_html)
         fees = parse_fee_dropdown(dropdown_text)
+
+        timestamp_probe = datetime.now(timezone.utc).isoformat()
+        candidates = [
+            {"send_amount": amount, "funding_method": fm, "delivery_method": DELIVERY_METHOD}
+            for fm in fees
+        ]
+        if not any_pending_today(conn, operator_id, corridor_id, candidates, timestamp_probe):
+            print(f"CA->SV ${amount}: todo ya recolectado hoy, se omite (sin captura nueva de evidencia).")
+            continue
 
         timestamp = datetime.now(timezone.utc)
         # full_page=True dispara el re-render del dialogo de cookies de

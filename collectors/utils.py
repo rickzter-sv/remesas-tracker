@@ -95,6 +95,35 @@ def already_collected_today(conn: sqlite3.Connection, observation: dict) -> bool
     return row is not None
 
 
+def any_pending_today(
+    conn: sqlite3.Connection,
+    operator_id: int,
+    corridor_id: int,
+    candidates: list,
+    timestamp_utc: str,
+) -> bool:
+    """True si al menos uno de los `candidates` (cada uno un dict con
+    'send_amount' y opcionalmente 'funding_method'/'delivery_method') NO fue
+    recolectado hoy todavia. Pensado para decidir si vale la pena capturar
+    una evidencia (screenshot) que respalda a varios candidatos a la vez,
+    SIN capturarla cuando todos resultarian duplicados del dia -- evita el
+    problema de archivos de evidencia huerfanos (sin fila en `evidence`
+    porque insert_observation_if_new igual los omitio) que dejaba el orden
+    anterior (capturar primero, recien despues chequear dedup por fila)."""
+    for candidate in candidates:
+        probe = {
+            "operator_id": operator_id,
+            "corridor_id": corridor_id,
+            "send_amount": candidate["send_amount"],
+            "funding_method": candidate.get("funding_method"),
+            "delivery_method": candidate.get("delivery_method"),
+            "timestamp_utc": timestamp_utc,
+        }
+        if not already_collected_today(conn, probe):
+            return True
+    return False
+
+
 def describe_observation(conn: sqlite3.Connection, observation: dict) -> str:
     """Descripcion legible de una observacion para mensajes de log (dedup,
     errores), resolviendo operator_id/corridor_id a nombres/codigos."""

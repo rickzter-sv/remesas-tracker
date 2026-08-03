@@ -36,6 +36,7 @@ from utils import (
     DEFAULT_DB_PATH,
     EVIDENCE_DIR,
     REQUEST_USER_AGENT,
+    any_pending_today,
     capture_screenshot_evidence,
     click_with_modal_retry,
     dismiss_any_blocking_modal,
@@ -143,6 +144,15 @@ def collect_us(page: Page, conn: sqlite3.Connection, corridor_id: int, operator_
     inserted_ids = []
     for amount in AMOUNTS:
         set_amount_us(page, amount)
+
+        timestamp_probe = datetime.now(timezone.utc).isoformat()
+        candidates = [
+            {"send_amount": amount, "funding_method": fm, "delivery_method": "bank_account"}
+            for _, fm in US_PAYMENT_METHODS
+        ]
+        if not any_pending_today(conn, operator_id, corridor_id, candidates, timestamp_probe):
+            print(f"US->SV ${amount}: todo ya recolectado hoy, se omite (sin captura nueva de evidencia).")
+            continue
 
         delivery_radio = page.locator(f"#{US_DELIVERY_METHOD_ID}")
         delivery_radio.wait_for(state="visible", timeout=15000)
@@ -267,6 +277,15 @@ def collect_ca(page: Page, conn: sqlite3.Connection, corridor_id: int, operator_
 
     inserted_ids = []
     for amount in AMOUNTS:
+        timestamp_probe = datetime.now(timezone.utc).isoformat()
+        candidates = [
+            {"send_amount": amount, "funding_method": fm, "delivery_method": "bank_account"}
+            for _, fm in CA_PAYMENT_METHOD_LABELS
+        ]
+        if not any_pending_today(conn, operator_id, corridor_id, candidates, timestamp_probe):
+            print(f"CA->SV ${amount}: todo ya recolectado hoy, se omite (sin captura nueva de evidencia).")
+            continue
+
         set_amount_ca(page, amount)
 
         delivery_panel_text = open_ca_panel(page, "delivery")

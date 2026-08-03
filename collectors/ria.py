@@ -60,6 +60,7 @@ from utils import (
     DEFAULT_DB_PATH,
     EVIDENCE_DIR,
     REQUEST_USER_AGENT,
+    any_pending_today,
     capture_screenshot_evidence,
     dismiss_cookie_banner,
     get_corridor_id,
@@ -206,6 +207,15 @@ def collect_corridor(
         set_amount(page, amount)
 
         for payment_label, funding_method in payment_methods:
+            timestamp_probe = datetime.now(timezone.utc).isoformat()
+            candidate = {"send_amount": amount, "funding_method": funding_method, "delivery_method": "bank_account"}
+            if not any_pending_today(conn, operator_id, corridor_id, [candidate], timestamp_probe):
+                print(
+                    f"{corridor_code.upper()}->SV ${amount} ({payment_label}): ya recolectado hoy, "
+                    f"se omite (sin interactuar con la UI ni capturar evidencia nueva)."
+                )
+                continue
+
             select_dropdown_option(page, "Payment method", payment_label)
 
             text = get_quote_text(page)
