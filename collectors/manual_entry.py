@@ -182,6 +182,14 @@ def main() -> None:
         "collection_method": "manual",
         "source_url": source_url,
         "collector_notes": notes,
+        # Hardcodeado (NO get_run_type()): este script corre localmente, nunca
+        # dentro de GitHub Actions, asi que GITHUB_EVENT_NAME jamas esta
+        # seteado -- get_run_type() lo clasificaria siempre como
+        # 'manual_test' y lo excluiria del export publico, pese a ser el
+        # metodo de recoleccion de PRODUCCION legitimo para operadores con
+        # requires_manual_sampling=1 (hoy: MoneyGram). Ver docs/pitch/
+        # schema-notes.md, seccion 7.3.
+        "run_type": "scheduled",
     }
 
     observation_id = insert_observation_if_new(conn, observation)

@@ -61,6 +61,7 @@ from utils import (
     dismiss_cookie_banner,
     get_corridor_id,
     get_operator_id,
+    get_run_type,
     insert_evidence,
     insert_observation_if_new,
 )
@@ -267,6 +268,7 @@ def collect(page: Page, conn: sqlite3.Connection, corridor_id: int, operator_id:
                 "collection_method": "automated",
                 "source_url": URL,
                 "collector_notes": notes,
+                "run_type": get_run_type(),
             }
             observation_id = insert_observation_if_new(conn, observation)
             if observation_id is None:

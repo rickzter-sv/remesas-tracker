@@ -109,6 +109,48 @@ def find_orphan_files(conn: sqlite3.Connection) -> list[dict]:
     return orphans
 
 
+def assert_not_production(conn: sqlite3.Connection, items: list[dict]) -> None:
+    """Aborta con error explicito (nunca en silencio) si alguno de los
+    archivos ya seleccionados para purga (es decir: con al menos una fila en
+    `evidence`) esta ligado a una observacion con run_type='scheduled' -- la
+    corrida oficial de produccion.
+
+    Este chequeo solo aplica al modo de purga por --since/--days (archivos
+    REFERENCIADOS). El modo --include-orphans no lo necesita: un huerfano
+    por definicion no tiene ninguna fila en `evidence` que lo ligue a una
+    observacion, asi que no puede ser "de produccion" en este sentido.
+
+    Ver docs/pitch/schema-notes.md, seccion 7.3: el diagnostico que origino
+    este campo encontro evidencia de corridas de prueba purgada mientras las
+    observaciones que respaldaba se quedaban en el dataset publico. Este
+    guard evita que --since/--days repita ese patron con evidencia real."""
+    if not items:
+        return
+    file_paths = [item["file_path"] for item in items]
+    placeholders = ", ".join("?" for _ in file_paths)
+    rows = conn.execute(
+        f"""
+        SELECT DISTINCT e.file_path
+        FROM evidence e
+        JOIN observations o ON o.observation_id = e.observation_id
+        WHERE e.file_path IN ({placeholders}) AND o.run_type = 'scheduled'
+        """,
+        file_paths,
+    ).fetchall()
+    protected = sorted(row[0] for row in rows)
+    if protected:
+        listado = "\n".join(f"  - {p}" for p in protected)
+        sys.exit(
+            "ERROR: se rechaza la purga -- incluye evidencia de PRODUCCION (run_type='scheduled').\n"
+            f"{len(protected)} de los archivos seleccionados por --since/--days estan ligados a al\n"
+            "menos una observacion con run_type='scheduled':\n"
+            f"{listado}\n\n"
+            "Este script nunca borra evidencia de produccion en silencio. Si de verdad quieres\n"
+            "purgar estos archivos especificos, es una decision consciente que debe tomarse fuera\n"
+            "de --since/--days (ver docs/pitch/schema-notes.md, seccion 7.3)."
+        )
+
+
 def git_remove(rel_path: str) -> None:
     subprocess.run(
         ["git", "rm", "-q", "--ignore-unmatch", "--", rel_path],
@@ -153,6 +195,7 @@ def main() -> None:
     conn = sqlite3.connect(db_path)
     try:
         prunable = find_prunable_referenced_files(conn, older_than=older_than, since=since)
+        assert_not_production(conn, prunable)
         orphans = find_orphan_files(conn) if args.include_orphans else []
     finally:
         conn.close()

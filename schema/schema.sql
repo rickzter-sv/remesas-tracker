@@ -55,7 +55,22 @@ CREATE TABLE IF NOT EXISTS observations (
     is_promotional           INTEGER NOT NULL DEFAULT 0,  -- 1 si es tarifa promocional (NUNCA usar como costo real)
     collection_method        TEXT NOT NULL,       -- ej. 'manual', 'scraper_playwright', 'scraper_requests'
     source_url               TEXT NOT NULL,
-    collector_notes          TEXT
+    collector_notes          TEXT,
+    -- Origen de la corrida que genero esta fila, para poder excluir del
+    -- export publico (export_dashboard_data.py) y proteger de purga
+    -- (scripts/prune_evidence.py) cualquier cosa que no sea la corrida
+    -- oficial diaria:
+    --   'scheduled'           - cron oficial (GITHUB_EVENT_NAME=='schedule')
+    --   'manual_test'         - workflow_dispatch, o cualquier corrida local/
+    --                           de desarrollo sin GITHUB_EVENT_NAME=='schedule'
+    --                           (incluye tambien corridas locales sin ese env var)
+    --   'pre_production_test' - observaciones de antes de que la automatizacion
+    --                           de ese colector se comiteara (ver docs/pitch/
+    --                           schema-notes.md, hallazgo del 2026-08-03)
+    -- Default 'manual_test' a proposito: si algun colector nuevo olvida
+    -- setear este campo, el fallo seguro es "queda fuera del export publico
+    -- y protegido de purga", nunca lo contrario.
+    run_type                 TEXT NOT NULL DEFAULT 'manual_test'
 );
 
 CREATE TABLE IF NOT EXISTS evidence (
@@ -63,7 +78,15 @@ CREATE TABLE IF NOT EXISTS evidence (
     observation_id    INTEGER NOT NULL REFERENCES observations(observation_id),
     file_path         TEXT NOT NULL,       -- ruta relativa dentro de /evidence
     sha256_hash       TEXT NOT NULL,
-    captured_at       TEXT NOT NULL        -- ISO 8601 UTC
+    captured_at       TEXT NOT NULL,       -- ISO 8601 UTC
+    -- 'available': el archivo en file_path existe hoy en el repo.
+    -- 'file_missing': se confirmo que el archivo ya no existe (purgado como
+    -- evidencia de una corrida de prueba, o nunca llego a comitearse) -- el
+    -- sha256_hash sigue siendo la prueba de que se capturo y con que
+    -- contenido, pero no hay archivo que un tercero pueda verificar contra
+    -- ese hash. Ver docs/pitch/schema-notes.md para el detalle del
+    -- diagnostico que origino este campo (2026-08-03).
+    file_status       TEXT NOT NULL DEFAULT 'available'
 );
 
 CREATE INDEX IF NOT EXISTS idx_observations_corridor ON observations(corridor_id);
@@ -113,3 +136,11 @@ VALUES
      'Cotizador verificado 2026-07-31 via navegador (curl da 403 por proteccion anti-bot; requiere navegador real). Solo corredor CA->SV. Requiere Playwright. ADVERTENCIA: la pagina anuncia el primer envio gratis ("Your very first transfer is completely free") -- NO capturar ese precio como tarifa real, siempre registrar la tarifa de lista para envios subsecuentes.');
 
 UPDATE operators SET requires_manual_sampling = 1 WHERE name = 'MoneyGram';
+
+-- Ria Money Transfer: decision aplicada por defecto el 2026-08-03, pendiente
+-- de confirmacion del usuario (ver operators.notes para el detalle y docs/
+-- pitch/schema-notes.md). El fallo real fue un TimeoutError de Playwright
+-- esperando un dropdown (selector roto), NO un bloqueo anti-bot como
+-- MoneyGram -- reproducido de forma consistente en 3 corridas distintas
+-- (2026-08-03T04:23, 02:15 y 12:35 UTC).
+UPDATE operators SET requires_manual_sampling = 1 WHERE name = 'Ria Money Transfer';

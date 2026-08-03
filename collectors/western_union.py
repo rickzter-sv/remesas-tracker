@@ -43,6 +43,7 @@ from utils import (
     dismiss_cookie_banner,
     get_corridor_id,
     get_operator_id,
+    get_run_type,
     insert_evidence,
     insert_observation_if_new,
     is_promotional,
@@ -202,6 +203,7 @@ def collect_us(page: Page, conn: sqlite3.Connection, corridor_id: int, operator_
                 "collection_method": "automated",
                 "source_url": US_URL,
                 "collector_notes": notes,
+                "run_type": get_run_type(),
             }
             observation_id = insert_observation_if_new(conn, observation)
             if observation_id is None:
@@ -333,6 +335,7 @@ def collect_ca(page: Page, conn: sqlite3.Connection, corridor_id: int, operator_
                 "collection_method": "automated",
                 "source_url": CA_URL,
                 "collector_notes": notes,
+                "run_type": get_run_type(),
             }
             observation_id = insert_observation_if_new(conn, observation)
             if observation_id is None:

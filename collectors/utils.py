@@ -12,6 +12,7 @@ reimplemente el mismo SQL.
 """
 
 import hashlib
+import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -27,6 +28,20 @@ REQUEST_USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 )
+
+
+def get_run_type() -> str:
+    """Clasifica la corrida actual para observations.run_type, segun el
+    evento de GitHub Actions que la disparo (ver docs/pitch/schema-notes.md,
+    seccion 7, para el diagnostico que origino este campo).
+
+    Solo 'schedule' (el cron oficial diario) cuenta como 'scheduled' -- todo
+    lo demas (workflow_dispatch, o GITHUB_EVENT_NAME sin setear porque se
+    corrio localmente) es 'manual_test'. Fallo seguro a proposito: una
+    corrida que no se pueda confirmar como el cron oficial queda excluida
+    del export publico (export_dashboard_data.py) y protegida de purga
+    (scripts/prune_evidence.py), nunca lo contrario."""
+    return "scheduled" if os.environ.get("GITHUB_EVENT_NAME") == "schedule" else "manual_test"
 
 COOKIE_BANNER_LABELS = ("Accept All Cookies", "Accept all", "I Accept", "Accept")
 MODAL_CLOSE_LABELS = ("OK", "Got it", "Close", "Continue")
