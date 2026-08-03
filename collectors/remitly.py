@@ -37,8 +37,10 @@ from bs4 import BeautifulSoup
 from utils import (
     DEFAULT_DB_PATH,
     EVIDENCE_DIR,
+    any_pending_today,
     get_corridor_id,
     get_operator_id,
+    get_run_type,
     insert_evidence,
     insert_observation_if_new,
 )
@@ -242,15 +244,39 @@ def get_ca_everyday_rate(hydration_context: dict, amount: float) -> tuple[float,
 
 
 def collect_corridor(conn: sqlite3.Connection, corridor: dict) -> list[int]:
+    # Fetch + parseo primero (sin escribir nada a disco todavia): a
+    # diferencia de WU/Ria/Xoom/RemitBee, los metodos de entrega de Remitly
+    # no son un mapa estatico conocido de antemano -- salen de las filas de
+    # la propia tabla de tarifas, asi que hace falta parsear la respuesta
+    # antes de poder construir los candidatos para any_pending_today(). Ver
+    # docs/pitch/schema-notes.md, seccion 7.3: mismo patron "chequear dedup
+    # antes de capturar evidencia" que 9df7e3a aplico a los otros 4
+    # colectores automaticos, adaptado aca a "antes de GUARDAR evidencia"
+    # porque el fetch en si (a diferencia de un screenshot) no tiene costo
+    # ni efecto en disco.
     html_bytes = fetch_html(corridor["pricing_url"])
-    timestamp = datetime.now(timezone.utc)
-    evidence_path, sha256_hash = save_evidence(corridor["code"], html_bytes, timestamp)
-
     soup = BeautifulSoup(html_bytes, "html.parser")
     fee_table = parse_fee_table(soup)
 
     corridor_id = get_corridor_id(conn, corridor["origin_country"], corridor["destination_country"])
     operator_id = get_operator_id(conn, OPERATOR_NAME)
+
+    timestamp_probe = datetime.now(timezone.utc).isoformat()
+    candidates = [
+        {
+            "send_amount": amount,
+            "funding_method": None,
+            "delivery_method": normalize_delivery_method(delivery_method_raw),
+        }
+        for delivery_method_raw in fee_table
+        for amount in AMOUNTS
+    ]
+    if not any_pending_today(conn, operator_id, corridor_id, candidates, timestamp_probe):
+        print(f"{corridor['code'].upper()}->SV: todo ya recolectado hoy, se omite (sin captura nueva de evidencia).")
+        return []
+
+    timestamp = datetime.now(timezone.utc)
+    evidence_path, sha256_hash = save_evidence(corridor["code"], html_bytes, timestamp)
 
     hydration_context = None
     hydration_error = None
@@ -319,6 +345,7 @@ def collect_corridor(conn: sqlite3.Connection, corridor: dict) -> list[int]:
                 "collection_method": "automated",
                 "source_url": corridor["pricing_url"],
                 "collector_notes": notes,
+                "run_type": get_run_type(),
             }
 
             observation_id = insert_observation_if_new(conn, observation)
