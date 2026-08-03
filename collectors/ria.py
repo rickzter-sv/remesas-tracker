@@ -28,6 +28,20 @@ fuera de ese rango, el widget muestra un mensaje de error ("Enter an amount
 between...") en vez de una tarifa, y esa combinacion se omite (no se inserta
 una fila con fee=0, que se confundiria con una promocion).
 
+Reintentos por corredor (agregado 2026-08-03): en GitHub Actions (IP de
+datacenter) el selector de destino a veces devuelve "No results." y el
+widget completo muestra "Unable to get rates. Please try again." -- confirmado
+reproduciendo el mismo flujo desde otra IP no residencial. No es un bloqueo
+anti-bot explicito (no hay mensaje de deteccion, a diferencia de MoneyGram),
+sino que parece una falla intermitente del backend de tasas de Ria bajo IPs
+no residenciales. collect_corridor() completo (no solo el paso que fallo) se
+reintenta hasta RETRY_ATTEMPTS veces con una pausa corta entre intentos: es
+seguro repetirlo porque insert_observation_if_new ya deduplica por dia, asi
+que un reintento que repite un monto/metodo ya insertado en un intento
+anterior simplemente lo omite, no lo duplica. Si se agotan los intentos, se
+relanza la ultima excepcion tal cual -- run_all.py ya aisla el fallo por
+colector sin bloquear a los demas, asi que no hace falta absorberlo aca.
+
 Uso:
     python collectors/ria.py [ruta_a_remesas.db]
 """
@@ -46,18 +60,21 @@ from utils import (
     DEFAULT_DB_PATH,
     EVIDENCE_DIR,
     REQUEST_USER_AGENT,
+    capture_screenshot_evidence,
     dismiss_cookie_banner,
     get_corridor_id,
     get_operator_id,
     insert_evidence,
     insert_observation_if_new,
     is_promotional,
-    save_screenshot_evidence,
 )
 
 OPERATOR_NAME = "Ria Money Transfer"
 OPERATOR_SLUG = "ria"
 AMOUNTS = (100, 200, 500)
+
+RETRY_ATTEMPTS = 3
+RETRY_BACKOFF_SECONDS = (5, 10)
 
 US_URL = "https://www.riamoneytransfer.com/en-us"
 CA_URL = "https://www.riamoneytransfer.com/en-ca"
@@ -208,9 +225,8 @@ def collect_corridor(
             fee_list, fee_actual, fee_is_promo = fee_result
 
             timestamp = datetime.now(timezone.utc)
-            screenshot_bytes = page.screenshot(full_page=True)
-            evidence_path, sha256_hash = save_screenshot_evidence(
-                OPERATOR_SLUG, f"{corridor_code}_{funding_method}", amount, screenshot_bytes, timestamp
+            evidence_path, sha256_hash = capture_screenshot_evidence(
+                page, OPERATOR_SLUG, f"{corridor_code}_{funding_method}", amount, timestamp
             )
 
             receive_amount = round((amount - fee_list) * rate_list, 2)
@@ -265,6 +281,28 @@ def collect_corridor(
     return inserted_ids
 
 
+def collect_corridor_with_retries(page: Page, conn: sqlite3.Connection, **kwargs) -> list[int]:
+    """Reintenta collect_corridor() completo ante cualquier excepcion, con
+    una pausa corta entre intentos (ver docstring del modulo para el porque).
+    Relanza la ultima excepcion tal cual si se agotan los intentos."""
+    corridor_code = kwargs.get("corridor_code", "?")
+    last_exc = None
+    for attempt in range(1, RETRY_ATTEMPTS + 1):
+        try:
+            return collect_corridor(page, conn, **kwargs)
+        except Exception as exc:
+            last_exc = exc
+            if attempt == RETRY_ATTEMPTS:
+                break
+            backoff = RETRY_BACKOFF_SECONDS[min(attempt - 1, len(RETRY_BACKOFF_SECONDS) - 1)]
+            print(
+                f"Intento {attempt}/{RETRY_ATTEMPTS} fallo para corredor {corridor_code.upper()}->SV: "
+                f"{type(exc).__name__}: {exc}. Reintentando en {backoff}s..."
+            )
+            page.wait_for_timeout(backoff * 1000)
+    raise last_exc
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("db_path", nargs="?", default=str(DEFAULT_DB_PATH))
@@ -289,7 +327,7 @@ def main() -> None:
             browser = p.chromium.launch(headless=not args.headed)
             page = browser.new_page(user_agent=REQUEST_USER_AGENT, viewport={"width": 1400, "height": 1000})
             try:
-                collect_corridor(
+                collect_corridor_with_retries(
                     page,
                     conn,
                     url=US_URL,
@@ -300,7 +338,7 @@ def main() -> None:
                     payment_methods=US_PAYMENT_METHODS,
                     parse_rate=False,
                 )
-                collect_corridor(
+                collect_corridor_with_retries(
                     page,
                     conn,
                     url=CA_URL,

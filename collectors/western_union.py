@@ -36,6 +36,7 @@ from utils import (
     DEFAULT_DB_PATH,
     EVIDENCE_DIR,
     REQUEST_USER_AGENT,
+    capture_screenshot_evidence,
     click_with_modal_retry,
     dismiss_any_blocking_modal,
     dismiss_cookie_banner,
@@ -45,7 +46,6 @@ from utils import (
     insert_observation_if_new,
     is_promotional,
     parse_off_badge,
-    save_screenshot_evidence,
 )
 
 OPERATOR_NAME = "Western Union"
@@ -151,8 +151,7 @@ def collect_us(page: Page, conn: sqlite3.Connection, corridor_id: int, operator_
         page.wait_for_timeout(800)
 
         timestamp = datetime.now(timezone.utc)
-        screenshot_bytes = page.screenshot(full_page=True)
-        evidence_path, sha256_hash = save_screenshot_evidence(OPERATOR_SLUG, "us", amount, screenshot_bytes, timestamp)
+        evidence_path, sha256_hash = capture_screenshot_evidence(page, OPERATOR_SLUG, "us", amount, timestamp)
 
         inserted_this_amount = 0
         for payment_id, funding_method in US_PAYMENT_METHODS:
@@ -276,8 +275,7 @@ def collect_ca(page: Page, conn: sqlite3.Connection, corridor_id: int, operator_
         payment_panel_text = open_ca_panel(page, "payment")
 
         timestamp = datetime.now(timezone.utc)
-        screenshot_bytes = page.screenshot(full_page=True)
-        evidence_path, sha256_hash = save_screenshot_evidence(OPERATOR_SLUG, "ca", amount, screenshot_bytes, timestamp)
+        evidence_path, sha256_hash = capture_screenshot_evidence(page, OPERATOR_SLUG, "ca", amount, timestamp)
 
         fees_by_method = parse_ca_payment_methods(payment_panel_text)
         if not fees_by_method:

@@ -56,12 +56,12 @@ from utils import (
     DEFAULT_DB_PATH,
     EVIDENCE_DIR,
     REQUEST_USER_AGENT,
+    capture_screenshot_evidence,
     dismiss_cookie_banner,
     get_corridor_id,
     get_operator_id,
     insert_evidence,
     insert_observation_if_new,
-    save_screenshot_evidence,
 )
 
 OPERATOR_NAME = "RemitBee"
@@ -230,8 +230,7 @@ def collect(page: Page, conn: sqlite3.Connection, corridor_id: int, operator_id:
         # abrir el desplegable (ver open_payment_dropdown); si reaparece
         # despues, se acepta que tape parcialmente la captura antes que
         # arriesgar cerrar el desplegable.
-        screenshot_bytes = page.screenshot(full_page=False)
-        evidence_path, sha256_hash = save_screenshot_evidence(OPERATOR_SLUG, "ca", amount, screenshot_bytes, timestamp)
+        evidence_path, sha256_hash = capture_screenshot_evidence(page, OPERATOR_SLUG, "ca", amount, timestamp, full_page=False)
 
         page.keyboard.press("Escape")
         page.wait_for_timeout(500)

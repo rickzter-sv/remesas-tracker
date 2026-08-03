@@ -59,12 +59,12 @@ from utils import (
     DEFAULT_DB_PATH,
     EVIDENCE_DIR,
     REQUEST_USER_AGENT,
+    capture_screenshot_evidence,
     dismiss_cookie_banner,
     get_corridor_id,
     get_operator_id,
     insert_evidence,
     insert_observation_if_new,
-    save_screenshot_evidence,
 )
 
 OPERATOR_NAME = "Xoom (a PayPal service)"
@@ -225,8 +225,7 @@ def collect_corridor(
         check_no_promo_markers(dialog_html, table_text)
 
         timestamp = datetime.now(timezone.utc)
-        screenshot_bytes = page.screenshot(full_page=True)
-        evidence_path, sha256_hash = save_screenshot_evidence(OPERATOR_SLUG, corridor_code, amount, screenshot_bytes, timestamp)
+        evidence_path, sha256_hash = capture_screenshot_evidence(page, OPERATOR_SLUG, corridor_code, amount, timestamp)
 
         inserted_this_amount = 0
         for (delivery_method, funding_method), fee in fee_rows.items():

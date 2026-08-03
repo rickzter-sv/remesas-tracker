@@ -138,13 +138,33 @@ def insert_evidence(
     )
 
 
-def save_screenshot_evidence(
-    operator_slug: str, corridor_code: str, amount: int, png_bytes: bytes, timestamp: datetime
+SCREENSHOT_JPEG_QUALITY = 70
+
+
+def capture_screenshot_evidence(
+    page: Page,
+    operator_slug: str,
+    corridor_code: str,
+    amount: int,
+    timestamp: datetime,
+    full_page: bool = True,
 ) -> tuple[str, str]:
-    filename = f"{operator_slug}_{corridor_code}_{amount}_{timestamp.strftime('%Y%m%dT%H%M%SZ')}.png"
+    """Toma la captura y la guarda como evidencia, en un solo paso.
+
+    JPEG (no PNG) a proposito: estas paginas son cotizadores con fotos/
+    gradientes, donde JPEG calidad 70 es visualmente indistinguible para el
+    proposito de verificar un monto/tarifa en pantalla, pero pesa ~10-20% de
+    lo que pesa el PNG sin perdida equivalente (confirmado: una captura de
+    Xoom paso de 3.4MB a ~350-450KB). Con 5 colectores corriendo a diario
+    dentro de un repo Git que nunca borra su historia, ese ahorro es lo que
+    separa un repo sostenible de uno que llega al limite blando de 5GB de
+    GitHub en semanas en vez de meses (ver scripts/prune_evidence.py para la
+    otra mitad de la politica de retencion: purga de archivos viejos)."""
+    jpeg_bytes = page.screenshot(full_page=full_page, type="jpeg", quality=SCREENSHOT_JPEG_QUALITY)
+    filename = f"{operator_slug}_{corridor_code}_{amount}_{timestamp.strftime('%Y%m%dT%H%M%SZ')}.jpg"
     path = EVIDENCE_DIR / filename
-    path.write_bytes(png_bytes)
-    sha256_hash = hashlib.sha256(png_bytes).hexdigest()
+    path.write_bytes(jpeg_bytes)
+    sha256_hash = hashlib.sha256(jpeg_bytes).hexdigest()
     return f"evidence/{filename}", sha256_hash
 
 
