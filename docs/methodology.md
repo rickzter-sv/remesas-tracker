@@ -43,6 +43,14 @@ Cómo se aplica en la práctica, caso por caso (cada colector documenta sus prop
 - Casos verificados de tarifas en $0.00 que **no** son promoción de bienvenida sino condición permanente del producto (ej. PayPal USD en Xoom, o envíos de $500+ por ciertos métodos en RemitBee) — documentados explícitamente en el código del colector correspondiente, con nota aclaratoria guardada junto a la observación.
 - Casos verificados de tipo de cambio con doble cotización promocional/lista (Ria en el corredor CA→SV) — se guarda siempre la tasa de lista, nunca la promocional, incluso cuando el sitio la muestra destacada por defecto.
 
+**Esta regla no es teórica — nació de casos reales encontrados en la verificación manual previa a automatizar cada colector** ([`data/verificacion/cotizadores-verificacion.csv`](../data/verificacion/cotizadores-verificacion.csv) en este repo, relevamiento del 2026-07-31):
+
+- **MoneyGram US→SV**: tarifa de lista USD 4.49, mostrada tachada junto a un precio promocional de USD 0.00 por "primera transferencia".
+- **MoneyGram CA→SV**: mismo patrón (tarifa de lista CAD 3.99 tachada a CAD 0.00) — y además el tipo de cambio que el sitio muestra por defecto también es el promocional (0.71 USD/CAD) en lugar del estándar (0.69 USD/CAD), un segundo lugar donde la promoción podía filtrarse si no se buscaba explícitamente.
+- **Western Union CA→SV**: las cinco tarifas por método de pago (entre CAD 1.99 y CAD 6.99 según el método) aparecen todas en CAD 0.00 por la misma promoción de "$0 fee" de primer envío. La nota de verificación original es explícita al respecto: *"la promo de primera transferencia distorsiona la comisión observada: registrar SIEMPRE el precio tachado, no el 0.00."*
+
+Sin esta regla, los tres casos de arriba habrían entrado al dataset marcados como "gratis" — escondiendo exactamente el costo que este proyecto busca documentar.
+
 ## 5. Evidencia y trazabilidad
 
 Cada observación queda respaldada por un archivo de evidencia (captura de pantalla o HTML guardado) con **hash SHA-256**, de forma que cualquier cifra publicada puede verificarse contra la captura exacta que la originó. Esto incluye las cargas manuales de MoneyGram, que pasan por el mismo mecanismo (`collectors/manual_entry.py`).
@@ -52,10 +60,10 @@ Nota operativa: las capturas se almacenan como JPEG (no PNG) para mantener el ta
 ## 6. Limitaciones
 
 - **MoneyGram — bloqueo anti-bot confirmado.** El sitio de MoneyGram detecta automatización de forma explícita (mensaje directo de bloqueo, no un CAPTCHA resoluble). Se decidió no intentar evadirlo bajo ninguna circunstancia. La recolección es manual, con menor frecuencia (cadencia propuesta: semanal) por el costo de tiempo que implica, y por lo tanto con menos densidad de datos que los otros cinco operadores.
+- **Ria — cotizador con fallas intermitentes confirmadas.** Se confirmó (reproducido de forma independiente desde otro origen de red no residencial) que el cotizador de Ria falla intermitentemente devolviendo "Unable to get rates" al correr desde el runner de GitHub Actions — no parece ser un bloqueo anti-bot explícito (a diferencia de MoneyGram, no hay mensaje de detección), sino una falla del backend de tasas de Ria bajo IPs no residenciales. Se agregaron reintentos automáticos (3 intentos, con pausa corta entre cada uno) para mitigarlo, pero en un mal día la fila de Ria puede faltar por esta falla, no por un cambio real de precio.
 - **Corredor CA→SV sin precedente conocido en RPW.** Hasta donde pudimos confirmar, el corredor Canadá→El Salvador no figura entre los corredores relevados regularmente por RPW — lo que significa que este proyecto llena un vacío de datos público real, pero también que no existe una referencia externa auditada contra la cual validar directamente las cifras de ese corredor.
 - **Dataset en fase temprana de acumulación.** La recolección automatizada de los seis operadores arrancó recién el 31 de julio–1 de agosto de 2026. A la fecha de este borrador, la base cubre **3 días distintos de datos** (341 observaciones totales). Esto alcanza para documentar una fotografía confiable del costo actual, pero **todavía no es una serie temporal** — no debe usarse para afirmar tendencias, estacionalidad, ni comparaciones mes a mes.
 - **Cobertura de métodos no simétrica entre operadores.** No todos los operadores exponen las mismas combinaciones de método de pago/entrega (ej. Remitly en EE.UU. no distingue método de pago, solo de entrega; RemitBee solo opera en el corredor CA→SV). Las comparaciones entre operadores deben controlar por método, no solo por operador y monto.
-- **Fragilidad conocida del cotizador de Ria.** Se confirmó (reproducido de forma independiente desde otro origen de red no residencial) que el cotizador de Ria falla intermitentemente devolviendo "Unable to get rates" — no parece ser un bloqueo anti-bot explícito, sino una falla del backend de tasas de Ria bajo ciertas condiciones de red. Se agregaron reintentos automáticos para mitigarlo, pero en un mal día la fila de Ria puede faltar por esta falla, no por un cambio real de precio.
 
 ## 7. Estado actual del dataset (a completar antes de publicar)
 
