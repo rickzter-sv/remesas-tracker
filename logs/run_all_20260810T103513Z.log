@@ -1,0 +1,53 @@
+[2026-08-10T10:35:13.006183+00:00] === Iniciando Remitly (remitly.py) ===
+[2026-08-10T10:35:14.108751+00:00]   [Remitly] US->SV: 12 observaciones insertadas desde https://www.remitly.com/us/en/el-salvador/pricing
+[2026-08-10T10:35:14.108787+00:00]   [Remitly]   Evidencia: evidence/remitly_us_20260810T103513Z.html (sha256=37ee038baa8a08c495cf9f95a6763af2c43345ff20019b7df12813da5b73032a)
+[2026-08-10T10:35:14.108794+00:00]   [Remitly] CA->SV: 12 observaciones insertadas desde https://www.remitly.com/ca/en/el-salvador/pricing
+[2026-08-10T10:35:14.108799+00:00]   [Remitly]   Evidencia: evidence/remitly_ca_20260810T103514Z.html (sha256=76b73f1bb4233a8bbc21dbedb14110f81fa1cee5fb0de77312124e63e0139bdd)
+[2026-08-10T10:35:14.108807+00:00] OK Remitly: 24 observaciones nuevas
+[2026-08-10T10:35:14.108839+00:00] === Iniciando Western Union (western_union.py) ===
+[2026-08-10T10:36:41.864808+00:00]   [Western Union] US->SV $100: 5 observaciones insertadas. Evidencia: evidence/western_union_us_100_20260810T103529Z.jpg (sha256=f65063ee399e60e5fb219c608aee97972f7f1d992dcea46898cfe845b8df90f2)
+[2026-08-10T10:36:41.864844+00:00]   [Western Union] US->SV $200: 5 observaciones insertadas. Evidencia: evidence/western_union_us_200_20260810T103549Z.jpg (sha256=822efcb000ef123f2d616a8c039d8a3a7031a0840a0b7f60478491effca12765)
+[2026-08-10T10:36:41.864851+00:00]   [Western Union] US->SV $500: 5 observaciones insertadas. Evidencia: evidence/western_union_us_500_20260810T103607Z.jpg (sha256=7a8bdf5cff0363ad52667e485738740df2468b961fa77c80b3d91368d37fccb6)
+[2026-08-10T10:36:41.864854+00:00]   [Western Union] CA->SV $100: 5 observaciones insertadas. Evidencia: evidence/western_union_ca_100_20260810T103633Z.jpg (sha256=e00b557571342e954e95860ee0a484c33ad206d2f6839cab4946efaed6e9de21)
+[2026-08-10T10:36:41.864857+00:00]   [Western Union] CA->SV $200: 5 observaciones insertadas. Evidencia: evidence/western_union_ca_200_20260810T103637Z.jpg (sha256=ef2da053fd028e035bc5da1732a6ccb3d5761a312190a5dd854d9fcac402d1f8)
+[2026-08-10T10:36:41.864860+00:00]   [Western Union] CA->SV $500: 5 observaciones insertadas. Evidencia: evidence/western_union_ca_500_20260810T103641Z.jpg (sha256=bdd549c2df94b20ed96a1c528ecc1ffa57fcb0719d36a7d20c3fbd7f512e4921)
+[2026-08-10T10:36:41.864865+00:00] OK Western Union: 30 observaciones nuevas
+[2026-08-10T10:36:41.864892+00:00] === Iniciando Ria Money Transfer (ria.py) ===
+[2026-08-10T10:37:34.349173+00:00]   [Ria Money Transfer] Intento 1/3 fallo para corredor US->SV: TimeoutError: Locator.click: Timeout 10000ms exceeded.
+[2026-08-10T10:37:34.349210+00:00]   [Ria Money Transfer] Call log:
+[2026-08-10T10:37:34.349215+00:00]   [Ria Money Transfer]   - waiting for get_by_role("option").first
+[2026-08-10T10:37:34.349219+00:00]   [Ria Money Transfer] . Reintentando en 5s...
+[2026-08-10T10:37:34.349223+00:00]   [Ria Money Transfer] Intento 2/3 fallo para corredor US->SV: TimeoutError: Locator.click: Timeout 10000ms exceeded.
+[2026-08-10T10:37:34.349226+00:00]   [Ria Money Transfer] Call log:
+[2026-08-10T10:37:34.349229+00:00]   [Ria Money Transfer]   - waiting for get_by_role("option").first
+[2026-08-10T10:37:34.349232+00:00]   [Ria Money Transfer] . Reintentando en 10s...
+[2026-08-10T10:37:34.349247+00:00] FALLO Ria Money Transfer: codigo de salida 1:     return task.result()
+           ^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/playwright/_impl/_locator.py", line 165, in click
+    return await self._frame._click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/playwright/_impl/_frame.py", line 593, in _click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/playwright/_impl/_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages/playwright/_impl/_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Locator.click: Timeout 10000ms exceeded.
+Call log:
+  - waiting for get_by_role("option").first
+[2026-08-10T10:37:34.349282+00:00] === Iniciando Xoom (a PayPal service) (xoom.py) ===
+[2026-08-10T10:37:59.341392+00:00]   [Xoom (a PayPal service)] US->SV $100: 15 observaciones insertadas. Evidencia: evidence/xoom_us_100_20260810T103739Z.jpg (sha256=30fa1bdf6ae108100a57e360485aee028ccd9d67f461fa4f3404d35f79ed4a1e)
+[2026-08-10T10:37:59.341427+00:00]   [Xoom (a PayPal service)] US->SV $200: 15 observaciones insertadas. Evidencia: evidence/xoom_us_200_20260810T103742Z.jpg (sha256=3d6e4d4b37654e55a983c0104247878da5b2901acff8f3df1eaf69f7f51ef087)
+[2026-08-10T10:37:59.341431+00:00]   [Xoom (a PayPal service)] US->SV $500: 15 observaciones insertadas. Evidencia: evidence/xoom_us_500_20260810T103745Z.jpg (sha256=fd74be70ae12771f37a9d32825389913455222b375953efc368fa62e744e0eeb)
+[2026-08-10T10:37:59.341433+00:00]   [Xoom (a PayPal service)] CA->SV $100: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_100_20260810T103751Z.jpg (sha256=a6c68f3def07c910a2d3e343ab269a6585b96c9062d720b571a49b7c2aaf9075)
+[2026-08-10T10:37:59.341436+00:00]   [Xoom (a PayPal service)] CA->SV $200: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_200_20260810T103755Z.jpg (sha256=90da04822b1a72b926750655402acbe0b2eff8746a755f33c07a80eb0155d09f)
+[2026-08-10T10:37:59.341438+00:00]   [Xoom (a PayPal service)] CA->SV $500: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_500_20260810T103758Z.jpg (sha256=1cf0013d335b14c021e7f649d7f6e48c34e68e0c2ddd6b00120e9881dd21aaa2)
+[2026-08-10T10:37:59.341443+00:00] OK Xoom (a PayPal service): 69 observaciones nuevas
+[2026-08-10T10:37:59.341469+00:00] === Iniciando RemitBee (remitbee.py) ===
+[2026-08-10T10:38:11.076206+00:00]   [RemitBee] CA->SV $100: 4 observaciones insertadas. Evidencia: evidence/remitbee_ca_100_20260810T103803Z.jpg (sha256=088cf577dbcc6204b5f5a2a724925e758a9779ab212041680b36ef1ae42dc381)
+[2026-08-10T10:38:11.076240+00:00]   [RemitBee] CA->SV $200: 4 observaciones insertadas. Evidencia: evidence/remitbee_ca_200_20260810T103806Z.jpg (sha256=59e0d49a66c5acd8a2933f92295874fe70f7ea611f224e11705838fb260edcb0)
+[2026-08-10T10:38:11.076244+00:00]   [RemitBee] CA->SV $500: 4 observaciones insertadas. Evidencia: evidence/remitbee_ca_500_20260810T103810Z.jpg (sha256=ea2d855ad9c8e3d27580201c279be81dbb6485c9151443a1c7a318599ceec23f)
+[2026-08-10T10:38:11.076252+00:00] OK RemitBee: 12 observaciones nuevas
+
+RECORDATORIO: MoneyGram sigue pendiente de muestreo manual (operators.requires_manual_sampling=1) -- su sitio bloquea automatizacion de forma explicita (ver operators.notes, confirmado 2026-08-01). Este orquestador NO lo corre ni lo intenta: no existe collectors/moneygram.py a proposito.
