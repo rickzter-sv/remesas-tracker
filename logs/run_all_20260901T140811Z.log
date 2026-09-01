@@ -1,0 +1,75 @@
+[2026-09-01T14:08:11.019548+00:00] === Iniciando Remitly (remitly.py) ===
+[2026-09-01T14:08:12.332121+00:00]   [Remitly] US->SV: 9 observaciones insertadas desde https://www.remitly.com/us/en/el-salvador/pricing
+[2026-09-01T14:08:12.332157+00:00]   [Remitly]   Evidencia: evidence/remitly_us_20260901T140811Z.html (sha256=71b51fa2164f6e2e424cc8b049f44dc066859804dad1b6cd1696ec1b69b72ced)
+[2026-09-01T14:08:12.332164+00:00]   [Remitly] CA->SV: 9 observaciones insertadas desde https://www.remitly.com/ca/en/el-salvador/pricing
+[2026-09-01T14:08:12.332169+00:00]   [Remitly]   Evidencia: evidence/remitly_ca_20260901T140812Z.html (sha256=127510c502629649c682aecb979f474273fd6cd1a4c48fd9eebc67fc4183358a)
+[2026-09-01T14:08:12.332176+00:00] OK Remitly: 18 observaciones nuevas
+[2026-09-01T14:08:12.332206+00:00] === Iniciando Western Union (western_union.py) ===
+[2026-09-01T14:09:54.283231+00:00]   [Western Union] US->SV $100: 5 observaciones insertadas. Evidencia: evidence/western_union_us_100_20260901T140832Z.jpg (sha256=f65063ee399e60e5fb219c608aee97972f7f1d992dcea46898cfe845b8df90f2)
+[2026-09-01T14:09:54.283274+00:00]   [Western Union] US->SV $200: 5 observaciones insertadas. Evidencia: evidence/western_union_us_200_20260901T140853Z.jpg (sha256=822efcb000ef123f2d616a8c039d8a3a7031a0840a0b7f60478491effca12765)
+[2026-09-01T14:09:54.283284+00:00]   [Western Union] US->SV $500: 5 observaciones insertadas. Evidencia: evidence/western_union_us_500_20260901T140913Z.jpg (sha256=7a8bdf5cff0363ad52667e485738740df2468b961fa77c80b3d91368d37fccb6)
+[2026-09-01T14:09:54.283305+00:00] FALLO Western Union: codigo de salida 1:     return task.result()
+           ^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_locator.py", line 748, in wait_for
+    await self._frame.wait_for_selector(
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_frame.py", line 394, in wait_for_selector
+    await self._channel.send(
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 15000ms exceeded.
+Call log:
+  - waiting for locator("[role=\"dialog\"]").last to be visible
+    33 × locator resolved to hidden <div role="dialog" tabindex="-1" aria-modal="true" class="modal-overlay" data-modal-element-overlay="" data-modal-close-button-parent="">…</div>
+[2026-09-01T14:09:54.283340+00:00] === Iniciando Ria Money Transfer (ria.py) ===
+[2026-09-01T14:11:44.868193+00:00]   [Ria Money Transfer] Intento 1/3 fallo para corredor US->SV: TimeoutError: Locator.fill: Timeout 30000ms exceeded.
+[2026-09-01T14:11:44.868235+00:00]   [Ria Money Transfer] Call log:
+[2026-09-01T14:11:44.868241+00:00]   [Ria Money Transfer]   - waiting for get_by_placeholder("Search currency or country")
+[2026-09-01T14:11:44.868245+00:00]   [Ria Money Transfer] . Reintentando en 5s...
+[2026-09-01T14:11:44.868250+00:00]   [Ria Money Transfer] Intento 2/3 fallo para corredor US->SV: TimeoutError: Locator.fill: Timeout 30000ms exceeded.
+[2026-09-01T14:11:44.868254+00:00]   [Ria Money Transfer] Call log:
+[2026-09-01T14:11:44.868258+00:00]   [Ria Money Transfer]   - waiting for get_by_placeholder("Search currency or country")
+[2026-09-01T14:11:44.868262+00:00]   [Ria Money Transfer] . Reintentando en 10s...
+[2026-09-01T14:11:44.868282+00:00] FALLO Ria Money Transfer: codigo de salida 1:   File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_locator.py", line 219, in fill
+    return await self._frame.fill(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_frame.py", line 636, in fill
+    await self._fill(**locals_to_params(locals()))
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_frame.py", line 648, in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Locator.fill: Timeout 30000ms exceeded.
+Call log:
+  - waiting for get_by_placeholder("Search currency or country")
+[2026-09-01T14:11:44.868318+00:00] === Iniciando Xoom (a PayPal service) (xoom.py) ===
+[2026-09-01T14:12:10.056892+00:00]   [Xoom (a PayPal service)] US->SV $100: 15 observaciones insertadas. Evidencia: evidence/xoom_us_100_20260901T141149Z.jpg (sha256=80bd6a76ac2486d6529dbb324e8abf53c9c7fb7069876e9374b188977e594783)
+[2026-09-01T14:12:10.056928+00:00]   [Xoom (a PayPal service)] US->SV $200: 15 observaciones insertadas. Evidencia: evidence/xoom_us_200_20260901T141153Z.jpg (sha256=78bec8b59b8297c9bf6977fa35079e3d790357d554703f2664fbafeba1294433)
+[2026-09-01T14:12:10.056932+00:00]   [Xoom (a PayPal service)] US->SV $500: 15 observaciones insertadas. Evidencia: evidence/xoom_us_500_20260901T141156Z.jpg (sha256=9330a45ef6acbc7b4cc1be1238e55a909acdeeaa8c6a4fcfd44c6ccf44e27612)
+[2026-09-01T14:12:10.056936+00:00]   [Xoom (a PayPal service)] CA->SV $100: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_100_20260901T141202Z.jpg (sha256=a65f07286a1600966566a9f18ede682dd965b0fca51979ffff623ebb7ce3a8ab)
+[2026-09-01T14:12:10.056943+00:00]   [Xoom (a PayPal service)] CA->SV $200: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_200_20260901T141205Z.jpg (sha256=5e087125016a226c1cbbee263caf085d6688b0d931a8e712d724c3f7958f416d)
+[2026-09-01T14:12:10.056947+00:00]   [Xoom (a PayPal service)] CA->SV $500: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_500_20260901T141209Z.jpg (sha256=e45844ec50e4a7f8d4fcafc69b3153affc1fd7d74ac396f10727aa16ab8444a0)
+[2026-09-01T14:12:10.056952+00:00] OK Xoom (a PayPal service): 69 observaciones nuevas
+[2026-09-01T14:12:10.056979+00:00] === Iniciando RemitBee (remitbee.py) ===
+[2026-09-01T14:12:20.313683+00:00] FALLO RemitBee: codigo de salida 1:     raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Page.wait_for_function: Timeout 8000ms exceeded.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/remesas-tracker/remesas-tracker/collectors/remitbee.py", line 320, in <module>
+    main()
+  File "/home/runner/work/remesas-tracker/remesas-tracker/collectors/remitbee.py", line 312, in main
+    collect(page, conn, corridor_id, operator_id)
+  File "/home/runner/work/remesas-tracker/remesas-tracker/collectors/remitbee.py", line 213, in collect
+    set_amount(page, amount)
+  File "/home/runner/work/remesas-tracker/remesas-tracker/collectors/remitbee.py", line 134, in set_amount
+    raise ValueError(
+ValueError: El campo 'They receive' no cambio de valor tras fijar el monto en 100 (seguia en ''); el recalculo de tarifas probablemente no se completo.
+
+RECORDATORIO: MoneyGram sigue pendiente de muestreo manual (operators.requires_manual_sampling=1) -- su sitio bloquea automatizacion de forma explicita (ver operators.notes, confirmado 2026-08-01). Este orquestador NO lo corre ni lo intenta: no existe collectors/moneygram.py a proposito.
