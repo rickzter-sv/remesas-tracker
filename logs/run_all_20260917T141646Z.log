@@ -1,0 +1,65 @@
+[2026-09-17T14:16:46.263679+00:00] === Iniciando Remitly (remitly.py) ===
+[2026-09-17T14:16:47.646392+00:00]   [Remitly] US->SV: 9 observaciones insertadas desde https://www.remitly.com/us/en/el-salvador/pricing
+[2026-09-17T14:16:47.646437+00:00]   [Remitly]   Evidencia: evidence/remitly_us_20260917T141647Z.html (sha256=cbaf925d49a30ace5e5c81a777bbd5a4cc42830ccd724bbcc7c04c499cf5c954)
+[2026-09-17T14:16:47.646447+00:00]   [Remitly] CA->SV: 9 observaciones insertadas desde https://www.remitly.com/ca/en/el-salvador/pricing
+[2026-09-17T14:16:47.646454+00:00]   [Remitly]   Evidencia: evidence/remitly_ca_20260917T141647Z.html (sha256=5292d3a5983d6f83b4cc2e778a3d6372c01673eadb0bb3f8e036234cf1265607)
+[2026-09-17T14:16:47.646463+00:00] OK Remitly: 18 observaciones nuevas
+[2026-09-17T14:16:47.646497+00:00] === Iniciando Western Union (western_union.py) ===
+[2026-09-17T14:18:24.897628+00:00]   [Western Union] US->SV $100: 5 observaciones insertadas. Evidencia: evidence/western_union_us_100_20260917T141707Z.jpg (sha256=015a62e08b1a049e69292fe4452e3049e255b1bc3eaeb42d0fc67838980c7e9a)
+[2026-09-17T14:18:24.897674+00:00]   [Western Union] US->SV $200: 5 observaciones insertadas. Evidencia: evidence/western_union_us_200_20260917T141727Z.jpg (sha256=9df069365a5c264ea6b2107a1ea06731b3e61476d4b18255c683e2fd38b317f4)
+[2026-09-17T14:18:24.897685+00:00]   [Western Union] US->SV $500: 5 observaciones insertadas. Evidencia: evidence/western_union_us_500_20260917T141746Z.jpg (sha256=e550fa2e90b31d42b6fb4c6e2dd9b060859cc9c17b04b0dbe806e4b98dd9f55f)
+[2026-09-17T14:18:24.897708+00:00] FALLO Western Union: codigo de salida 1:     return task.result()
+           ^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_locator.py", line 752, in wait_for
+    await self._frame.wait_for_selector(
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_frame.py", line 395, in wait_for_selector
+    await self._channel.send(
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 15000ms exceeded.
+Call log:
+  - waiting for locator("[role=\"dialog\"]").last to be visible
+    33 × locator resolved to hidden <div role="dialog" tabindex="-1" aria-modal="true" class="modal-overlay" data-modal-element-overlay="" data-modal-close-button-parent="">…</div>
+[2026-09-17T14:18:24.897744+00:00] === Iniciando Ria Money Transfer (ria.py) ===
+[2026-09-17T14:20:07.158958+00:00]   [Ria Money Transfer] US->SV $100 (Bank): 1 observacion insertada. Evidencia: evidence/ria_us_bank_account_100_20260917T141836Z.jpg (sha256=652bae6de0a7d5eb64d1d3735a6a36684990fa0a4ea86ff33c128b520e6baac1)
+[2026-09-17T14:20:07.159005+00:00]   [Ria Money Transfer] US->SV $100 (Credit card): 1 observacion insertada. Evidencia: evidence/ria_us_credit_card_100_20260917T141838Z.jpg (sha256=cbbc5b11880af504c1755bae3488891c12cb44bab2dc991797e188b3fee6f6ed)
+[2026-09-17T14:20:07.159014+00:00]   [Ria Money Transfer] US->SV $100 (Debit card): 1 observacion insertada. Evidencia: evidence/ria_us_debit_card_100_20260917T141841Z.jpg (sha256=8b7912eb713164228bdefafa92b197d53d2f996378774cdcbe3cd9bdb1c62466)
+[2026-09-17T14:20:07.159020+00:00]   [Ria Money Transfer] US->SV $100 (Cash): 1 observacion insertada. Evidencia: evidence/ria_us_cash_100_20260917T141844Z.jpg (sha256=cdd0a8f2a4dca15835a30539322fe50f82e9f28135c1df5e72dc1ce36c005540)
+[2026-09-17T14:20:07.159026+00:00]   [Ria Money Transfer] Intento 1/3 fallo para corredor US->SV: ValueError: No se pudo leer 'Fee' en el resumen de Ria: 'Quote details\n\nYou send\n\nUSD\n\nThey receive\n\nUSD\n\nEnter an amount between 1-495 USD.\n\nPayment method\nDelivery method\nFee\nTotal to pay\nStart your transfer\nSend via WhatsApp\n\nLearn more about sending money on WhatsApp'. Reintentando en 5s...
+[2026-09-17T14:20:07.159047+00:00]   [Ria Money Transfer] Intento 2/3 fallo para corredor US->SV: TimeoutError: Locator.fill: Timeout 30000ms exceeded.
+[2026-09-17T14:20:07.159053+00:00]   [Ria Money Transfer] Call log:
+[2026-09-17T14:20:07.159058+00:00]   [Ria Money Transfer]   - waiting for get_by_placeholder("Search currency or country")
+[2026-09-17T14:20:07.159062+00:00]   [Ria Money Transfer] . Reintentando en 10s...
+[2026-09-17T14:20:07.159080+00:00] FALLO Ria Money Transfer: codigo de salida 1:   File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_locator.py", line 219, in fill
+    return await self._frame.fill(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_frame.py", line 637, in fill
+    await self._fill(**locals_to_params(locals()))
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_frame.py", line 649, in _fill
+    await self._channel.send("fill", self._timeout, locals_to_params(locals()))
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_connection.py", line 76, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/playwright/_impl/_connection.py", line 632, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Locator.fill: Timeout 30000ms exceeded.
+Call log:
+  - waiting for get_by_placeholder("Search currency or country")
+[2026-09-17T14:20:07.159108+00:00] === Iniciando Xoom (a PayPal service) (xoom.py) ===
+[2026-09-17T14:20:32.906617+00:00]   [Xoom (a PayPal service)] US->SV $100: 15 observaciones insertadas. Evidencia: evidence/xoom_us_100_20260917T142012Z.jpg (sha256=c681d6c02d27bb292a55b90ce3c5e000e4239c28f7a9fda0bbebd5dd5705fe68)
+[2026-09-17T14:20:32.906652+00:00]   [Xoom (a PayPal service)] US->SV $200: 15 observaciones insertadas. Evidencia: evidence/xoom_us_200_20260917T142015Z.jpg (sha256=22dd6a05d8da780c0dc71f2b8f2f9d14812c909b966dba3a639bf46c14d6d044)
+[2026-09-17T14:20:32.906659+00:00]   [Xoom (a PayPal service)] US->SV $500: 15 observaciones insertadas. Evidencia: evidence/xoom_us_500_20260917T142018Z.jpg (sha256=2730df474872fe8fb9fa0cdbe1409525249a1b0ca3a4b014676d09dccf8748fd)
+[2026-09-17T14:20:32.906668+00:00]   [Xoom (a PayPal service)] CA->SV $100: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_100_20260917T142025Z.jpg (sha256=d63ea9d2b0c0af5b3619e0aa03502406c175b86d9d0a8452948908b4e182d454)
+[2026-09-17T14:20:32.906672+00:00]   [Xoom (a PayPal service)] CA->SV $200: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_200_20260917T142028Z.jpg (sha256=1e312e7ab008bbcbe5507ab6083b838348d567e37a346b944c9cc52f56aec1b4)
+[2026-09-17T14:20:32.906676+00:00]   [Xoom (a PayPal service)] CA->SV $500: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_500_20260917T142032Z.jpg (sha256=3a6a672f97460251db03cf08b2907b9cf13e252aa1ce422458732400ab90d5bd)
+[2026-09-17T14:20:32.906682+00:00] OK Xoom (a PayPal service): 69 observaciones nuevas
+[2026-09-17T14:20:32.906711+00:00] === Iniciando RemitBee (remitbee.py) ===
+[2026-09-17T14:20:45.630216+00:00]   [RemitBee] CA->SV $100: 4 observaciones insertadas. Evidencia: evidence/remitbee_ca_100_20260917T142038Z.jpg (sha256=f5aa7e23a019e64de9d5771b88dc5294821eb8bcc2e2795cde1ab7e33e6eb4f8)
+[2026-09-17T14:20:45.630260+00:00]   [RemitBee] CA->SV $200: 4 observaciones insertadas. Evidencia: evidence/remitbee_ca_200_20260917T142041Z.jpg (sha256=020f15ba52cd565081bd0e6e5470fc8a9fe8dd6fef92452d0882b8074227122e)
+[2026-09-17T14:20:45.630271+00:00]   [RemitBee] CA->SV $500: 4 observaciones insertadas. Evidencia: evidence/remitbee_ca_500_20260917T142044Z.jpg (sha256=eab431d316f3b7afc35d678d1475ba104745f1a402dd21cea7fbd9f41ee5a293)
+[2026-09-17T14:20:45.630311+00:00] OK RemitBee: 12 observaciones nuevas
+
+RECORDATORIO: MoneyGram sigue pendiente de muestreo manual (operators.requires_manual_sampling=1) -- su sitio bloquea automatizacion de forma explicita (ver operators.notes, confirmado 2026-08-01). Este orquestador NO lo corre ni lo intenta: no existe collectors/moneygram.py a proposito.
