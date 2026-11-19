@@ -1,0 +1,64 @@
+[2026-11-19T18:13:01.087117+00:00] === Iniciando Remitly (remitly.py) ===
+[2026-11-19T18:13:02.761738+00:00]   [Remitly] US->SV: 12 observaciones insertadas desde https://www.remitly.com/us/en/el-salvador/pricing
+[2026-11-19T18:13:02.761768+00:00]   [Remitly]   Evidencia: evidence/remitly_us_20261119T181301Z.html (sha256=0e1da346f8222e0780b06954a5b8a76ee5c03d186c6fc7621396bcb594ffb1cd)
+[2026-11-19T18:13:02.761786+00:00]   [Remitly] CA->SV: 12 observaciones insertadas desde https://www.remitly.com/ca/en/el-salvador/pricing
+[2026-11-19T18:13:02.761792+00:00]   [Remitly]   Evidencia: evidence/remitly_ca_20261119T181302Z.html (sha256=6dd412f424538ec8ef0dc5f8a894560114b41abba3c59967b789765bed153d5a)
+[2026-11-19T18:13:02.761798+00:00] OK Remitly: 24 observaciones nuevas
+[2026-11-19T18:13:02.761824+00:00] === Iniciando Western Union (western_union.py) ===
+[2026-11-19T18:14:22.472731+00:00]   [Western Union] US->SV $100: 5 observaciones insertadas. Evidencia: evidence/western_union_us_100_20261119T181314Z.jpg (sha256=dbdd60006f39d53f24dc1c7a511b1d012ce592f872a1911225692003a47eb0d7)
+[2026-11-19T18:14:22.472793+00:00]   [Western Union] US->SV $200: 5 observaciones insertadas. Evidencia: evidence/western_union_us_200_20261119T181330Z.jpg (sha256=9df069365a5c264ea6b2107a1ea06731b3e61476d4b18255c683e2fd38b317f4)
+[2026-11-19T18:14:22.472807+00:00]   [Western Union] US->SV $500: 5 observaciones insertadas. Evidencia: evidence/western_union_us_500_20261119T181346Z.jpg (sha256=e550fa2e90b31d42b6fb4c6e2dd9b060859cc9c17b04b0dbe806e4b98dd9f55f)
+[2026-11-19T18:14:22.472829+00:00] FALLO Western Union: codigo de salida 1:   File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/channel_owner.py", line 398, in _mapped
+    return mapper(await awaitable)
+                  ^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/channel_owner.py", line 387, in finish
+    raise e from None
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/channel_owner.py", line 352, in finish
+    result = await zone.run_async(lambda: awaitable)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/utils/zones.py", line 58, in run_async
+    return await func()
+           ^^^^^^^^^^^^
+playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 15000ms exceeded.
+Call log:
+  - waiting for locator("[role=\"dialog\"]").last to be visible
+    34 × locator resolved to hidden <div role="dialog" tabindex="-1" aria-modal="true" class="modal-overlay" data-modal-element-overlay="" data-modal-close-button-parent="">…</div>
+[2026-11-19T18:14:22.472862+00:00] === Iniciando Ria Money Transfer (ria.py) ===
+[2026-11-19T18:15:14.046344+00:00]   [Ria Money Transfer] Intento 1/3 fallo para corredor US->SV: TimeoutError: Locator.click: Timeout 10000ms exceeded.
+[2026-11-19T18:15:14.046381+00:00]   [Ria Money Transfer] Call log:
+[2026-11-19T18:15:14.046388+00:00]   [Ria Money Transfer]   - waiting for get_by_role("button", name="Select Destination")
+[2026-11-19T18:15:14.046393+00:00]   [Ria Money Transfer] . Reintentando en 5s...
+[2026-11-19T18:15:14.046397+00:00]   [Ria Money Transfer] Intento 2/3 fallo para corredor US->SV: TimeoutError: Locator.click: Timeout 10000ms exceeded.
+[2026-11-19T18:15:14.046402+00:00]   [Ria Money Transfer] Call log:
+[2026-11-19T18:15:14.046406+00:00]   [Ria Money Transfer]   - waiting for get_by_role("button", name="Select Destination")
+[2026-11-19T18:15:14.046411+00:00]   [Ria Money Transfer] . Reintentando en 10s...
+[2026-11-19T18:15:14.046427+00:00] FALLO Ria Money Transfer: codigo de salida 1:            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/frame.py", line 587, in click
+    return await self._channel.click(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/channel_owner.py", line 387, in finish
+    raise e from None
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/channel_owner.py", line 352, in finish
+    result = await zone.run_async(lambda: awaitable)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/utils/zones.py", line 58, in run_async
+    return await func()
+           ^^^^^^^^^^^^
+playwright._impl._errors.TimeoutError: Locator.click: Timeout 10000ms exceeded.
+Call log:
+  - waiting for get_by_role("option", name="Bank").first
+[2026-11-19T18:15:14.046463+00:00] === Iniciando Xoom (a PayPal service) (xoom.py) ===
+[2026-11-19T18:15:38.530326+00:00]   [Xoom (a PayPal service)] US->SV $100: 15 observaciones insertadas. Evidencia: evidence/xoom_us_100_20261119T181518Z.jpg (sha256=5a065b113d9b9c7e6b6a18f4466f5aae910e72130ff32312160db688663d0f58)
+[2026-11-19T18:15:38.530357+00:00]   [Xoom (a PayPal service)] US->SV $200: 15 observaciones insertadas. Evidencia: evidence/xoom_us_200_20261119T181521Z.jpg (sha256=c9e6574ee317be4d6ef0cac705c85fa146729a3f66cf7aec0f38bb35e7bb5d9c)
+[2026-11-19T18:15:38.530362+00:00]   [Xoom (a PayPal service)] US->SV $500: 15 observaciones insertadas. Evidencia: evidence/xoom_us_500_20261119T181525Z.jpg (sha256=521acdf6ee7dfacf01a1d49c22a25ff2f5699299e00f30a0ed4625549fa75a75)
+[2026-11-19T18:15:38.530366+00:00]   [Xoom (a PayPal service)] CA->SV $100: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_100_20261119T181531Z.jpg (sha256=1ec161a0552c7a4dbf03fd2e50427c5c3081a48f2f41a1cee1041c848c84f18f)
+[2026-11-19T18:15:38.530372+00:00]   [Xoom (a PayPal service)] CA->SV $200: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_200_20261119T181534Z.jpg (sha256=68869e4e2195b13d2d31ac0118c4ae02951a50c8b6106f7ea7cc897cfa2698d4)
+[2026-11-19T18:15:38.530376+00:00]   [Xoom (a PayPal service)] CA->SV $500: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_500_20261119T181537Z.jpg (sha256=001f17d9532b6e974fa296bb19b0f55ae9c78ae55a5a5f3864a456f6b1b69155)
+[2026-11-19T18:15:38.530381+00:00] OK Xoom (a PayPal service): 69 observaciones nuevas
+[2026-11-19T18:15:38.530408+00:00] === Iniciando RemitBee (remitbee.py) ===
+[2026-11-19T18:15:46.521249+00:00]   [RemitBee] CA->SV $100: 4 observaciones insertadas. Evidencia: evidence/remitbee_ca_100_20261119T181541Z.jpg (sha256=81e67fe99e9b9799f52023c4e5d9eb3f159805922ff0c0a3757c09aa889177ed)
+[2026-11-19T18:15:46.521277+00:00]   [RemitBee] CA->SV $200: 4 observaciones insertadas. Evidencia: evidence/remitbee_ca_200_20261119T181543Z.jpg (sha256=6aa9a40833503141113e1b4b7355ad3b8c953ff54be5545cf0bf44742012c378)
+[2026-11-19T18:15:46.521283+00:00]   [RemitBee] CA->SV $500: 4 observaciones insertadas. Evidencia: evidence/remitbee_ca_500_20261119T181545Z.jpg (sha256=359525c637a82e5e4de6ebb1f003e673982943233cb209234f9f382acb50eb55)
+[2026-11-19T18:15:46.521291+00:00] OK RemitBee: 12 observaciones nuevas
+
+RECORDATORIO: MoneyGram sigue pendiente de muestreo manual (operators.requires_manual_sampling=1) -- su sitio bloquea automatizacion de forma explicita (ver operators.notes, confirmado 2026-08-01). Este orquestador NO lo corre ni lo intenta: no existe collectors/moneygram.py a proposito.
