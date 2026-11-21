@@ -1,0 +1,64 @@
+[2026-11-21T16:45:16.434333+00:00] === Iniciando Remitly (remitly.py) ===
+[2026-11-21T16:45:18.137447+00:00]   [Remitly] US->SV: 12 observaciones insertadas desde https://www.remitly.com/us/en/el-salvador/pricing
+[2026-11-21T16:45:18.137480+00:00]   [Remitly]   Evidencia: evidence/remitly_us_20261121T164517Z.html (sha256=7442e9df5ac6621639638aadc4d66e8dc5d92a5d525277d56f3e735191306604)
+[2026-11-21T16:45:18.137487+00:00]   [Remitly] CA->SV: 12 observaciones insertadas desde https://www.remitly.com/ca/en/el-salvador/pricing
+[2026-11-21T16:45:18.137492+00:00]   [Remitly]   Evidencia: evidence/remitly_ca_20261121T164518Z.html (sha256=5d59cf0d4971f19a613daeecb8f1c5e998296c43f5cbab4ef698a75a6c68d604)
+[2026-11-21T16:45:18.137498+00:00] OK Remitly: 24 observaciones nuevas
+[2026-11-21T16:45:18.137524+00:00] === Iniciando Western Union (western_union.py) ===
+[2026-11-21T16:47:01.262891+00:00]   [Western Union] US->SV $100: 5 observaciones insertadas. Evidencia: evidence/western_union_us_100_20261121T164533Z.jpg (sha256=96a10c6769db4e2fd8e9e336da3c11f9db97e0cdab544eb5fc22d7d39a05293f)
+[2026-11-21T16:47:01.262933+00:00]   [Western Union] US->SV $200: 5 observaciones insertadas. Evidencia: evidence/western_union_us_200_20261121T164556Z.jpg (sha256=9df069365a5c264ea6b2107a1ea06731b3e61476d4b18255c683e2fd38b317f4)
+[2026-11-21T16:47:01.262945+00:00]   [Western Union] US->SV $500: 5 observaciones insertadas. Evidencia: evidence/western_union_us_500_20261121T164619Z.jpg (sha256=e550fa2e90b31d42b6fb4c6e2dd9b060859cc9c17b04b0dbe806e4b98dd9f55f)
+[2026-11-21T16:47:01.262968+00:00] FALLO Western Union: codigo de salida 1:   File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/channel_owner.py", line 398, in _mapped
+    return mapper(await awaitable)
+                  ^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/channel_owner.py", line 387, in finish
+    raise e from None
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/channel_owner.py", line 352, in finish
+    result = await zone.run_async(lambda: awaitable)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/utils/zones.py", line 58, in run_async
+    return await func()
+           ^^^^^^^^^^^^
+playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 15000ms exceeded.
+Call log:
+  - waiting for locator("[role=\"dialog\"]").last to be visible
+    33 × locator resolved to hidden <div role="dialog" tabindex="-1" aria-modal="true" class="modal-overlay" data-modal-element-overlay="" data-modal-close-button-parent="">…</div>
+[2026-11-21T16:47:01.263003+00:00] === Iniciando Ria Money Transfer (ria.py) ===
+[2026-11-21T16:47:54.167049+00:00]   [Ria Money Transfer] US->SV $100 (Bank): 1 observacion insertada. Evidencia: evidence/ria_us_bank_account_100_20261121T164710Z.jpg (sha256=99d1b193858dbf708c48a90b1fea3bce41ed18481a1d6fe3af55feca8bb18459)
+[2026-11-21T16:47:54.167084+00:00]   [Ria Money Transfer] US->SV $100 (Credit card): 1 observacion insertada. Evidencia: evidence/ria_us_credit_card_100_20261121T164713Z.jpg (sha256=fe46b56e38e33f11cb335693b3b812cf6cc052172dba76a104c856bb93fdccaa)
+[2026-11-21T16:47:54.167092+00:00]   [Ria Money Transfer] US->SV $100 (Debit card): 1 observacion insertada. Evidencia: evidence/ria_us_debit_card_100_20261121T164715Z.jpg (sha256=b9bbd92deef7d04a8ee519ebc6c39928d533e3fc6a8d90d4de2bcc188f89bcff)
+[2026-11-21T16:47:54.167097+00:00]   [Ria Money Transfer] Intento 1/3 fallo para corredor US->SV: ValueError: No se pudo leer 'Fee' en el resumen de Ria: 'Quote details\n\nYou send\n\nUSD\n\nThey receive\n\nUSD\n\nEnter an amount between 1.00-29,999.99 USD.\n\nPayment method\nDelivery method\nFee\nTotal to pay\nStart your transfer\nSend via WhatsApp\n\nLearn more about sending money on WhatsApp'. Reintentando en 5s...
+[2026-11-21T16:47:54.167108+00:00]   [Ria Money Transfer] Intento 2/3 fallo para corredor US->SV: TimeoutError: Locator.click: Timeout 10000ms exceeded.
+[2026-11-21T16:47:54.167156+00:00]   [Ria Money Transfer] Call log:
+[2026-11-21T16:47:54.167167+00:00]   [Ria Money Transfer]   - waiting for get_by_role("button", name="Select Destination")
+[2026-11-21T16:47:54.167172+00:00]   [Ria Money Transfer] . Reintentando en 10s...
+[2026-11-21T16:47:54.167185+00:00] FALLO Ria Money Transfer: codigo de salida 1:            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/frame.py", line 587, in click
+    return await self._channel.click(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/channel_owner.py", line 387, in finish
+    raise e from None
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/channel_owner.py", line 352, in finish
+    result = await zone.run_async(lambda: awaitable)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/playwright/_impl/utils/zones.py", line 58, in run_async
+    return await func()
+           ^^^^^^^^^^^^
+playwright._impl._errors.TimeoutError: Locator.click: Timeout 10000ms exceeded.
+Call log:
+  - waiting for get_by_role("button", name="Select Destination")
+[2026-11-21T16:47:54.167212+00:00] === Iniciando Xoom (a PayPal service) (xoom.py) ===
+[2026-11-21T16:48:19.480541+00:00]   [Xoom (a PayPal service)] US->SV $100: 15 observaciones insertadas. Evidencia: evidence/xoom_us_100_20261121T164758Z.jpg (sha256=9c5a79fe7e9ceb76e98602b18f8612e4ed1a92d5f79d4ec721d9da982987cdda)
+[2026-11-21T16:48:19.480573+00:00]   [Xoom (a PayPal service)] US->SV $200: 15 observaciones insertadas. Evidencia: evidence/xoom_us_200_20261121T164802Z.jpg (sha256=bece20b253c3bccaa8bb301a0511fdad162ff5fa8b1b97002c685160c2740b09)
+[2026-11-21T16:48:19.480580+00:00]   [Xoom (a PayPal service)] US->SV $500: 15 observaciones insertadas. Evidencia: evidence/xoom_us_500_20261121T164805Z.jpg (sha256=ac5acefbe1307b4af66dd7163ff15b1bca6c0f57ca71686c364faec37bc0284b)
+[2026-11-21T16:48:19.480584+00:00]   [Xoom (a PayPal service)] CA->SV $100: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_100_20261121T164811Z.jpg (sha256=86dd9700138a81d24796641c80af1cf36c8edd689960731ae4ee5d541edf2a46)
+[2026-11-21T16:48:19.480592+00:00]   [Xoom (a PayPal service)] CA->SV $200: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_200_20261121T164815Z.jpg (sha256=a86d471b6d7bce83c9696b0a8fb038b006d36e53f3916b8913fad5cafb283c3b)
+[2026-11-21T16:48:19.480596+00:00]   [Xoom (a PayPal service)] CA->SV $500: 8 observaciones insertadas. Evidencia: evidence/xoom_ca_500_20261121T164818Z.jpg (sha256=c4d8f3246ac099f10d9fad6ece527de3918a13cef57d9afa9ba03b9502721cbe)
+[2026-11-21T16:48:19.480602+00:00] OK Xoom (a PayPal service): 69 observaciones nuevas
+[2026-11-21T16:48:19.480630+00:00] === Iniciando RemitBee (remitbee.py) ===
+[2026-11-21T16:48:30.026838+00:00]   [RemitBee] CA->SV $100: 4 observaciones insertadas. Evidencia: evidence/remitbee_ca_100_20261121T164824Z.jpg (sha256=6955f01f19d8d20dc9d573921cba97456a974f0122b75081bd6a701b5967decb)
+[2026-11-21T16:48:30.026880+00:00]   [RemitBee] CA->SV $200: 4 observaciones insertadas. Evidencia: evidence/remitbee_ca_200_20261121T164827Z.jpg (sha256=886309f67ef700a3d9eb03dca11810f3de2763055a515a1f53f71d090fa3b054)
+[2026-11-21T16:48:30.026888+00:00]   [RemitBee] CA->SV $500: 4 observaciones insertadas. Evidencia: evidence/remitbee_ca_500_20261121T164829Z.jpg (sha256=7065a111275555322fdb659f336e3109fb4fba4bac4a9c65353cc9e42b3d9dfb)
+[2026-11-21T16:48:30.026901+00:00] OK RemitBee: 12 observaciones nuevas
+
+RECORDATORIO: MoneyGram sigue pendiente de muestreo manual (operators.requires_manual_sampling=1) -- su sitio bloquea automatizacion de forma explicita (ver operators.notes, confirmado 2026-08-01). Este orquestador NO lo corre ni lo intenta: no existe collectors/moneygram.py a proposito.
